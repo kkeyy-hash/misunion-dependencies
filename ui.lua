@@ -7306,4 +7306,333 @@ do
     end
 end
 --
+
+local Themes, NordHook = {
+    Default = {1, [[{"Outline":"000000","Accent":"5d3e98","LightText":"ffffff","DarkText":"afafaf","LightContrast":"1e1e1e","CursorOutline":"0a0a0a","DarkContrast":"141414","TextBorder":"000000","Inline":"323232"}]]},
+    Abyss = {2, [[{"Outline":"0a0a0a","Accent":"8c87b4","LightText":"ffffff","DarkText":"afafaf","LightContrast":"1e1e1e","CursorOutline":"141414","DarkContrast":"141414","TextBorder":"0a0a0a","Inline":"2d2d2d"}]]},
+    Fatality = {3, [[{"Outline":"0f0f28","Accent":"f00f50","LightText":"c8c8ff","DarkText":"afafaf","LightContrast":"231946","CursorOutline":"0f0f28","DarkContrast":"191432","TextBorder":"0a0a0a","Inline":"322850"}]]},
+    Neverlose = {4, [[{"Outline":"000005","Accent":"00b4f0","LightText":"ffffff","DarkText":"afafaf","LightContrast":"000f1e","CursorOutline":"0f0f28","DarkContrast":"050514","TextBorder":"0a0a0a","Inline":"0a1e28"}]]},
+    Aimware = {5, [[{"Outline":"000005","Accent":"c82828","LightText":"e8e8e8","DarkText":"afafaf","LightContrast":"2b2b2b","CursorOutline":"191919","DarkContrast":"191919","TextBorder":"0a0a0a","Inline":"373737"}]]},
+    Youtube = {6, [[{"Outline":"000000","Accent":"ff0000","LightText":"f1f1f1","DarkText":"aaaaaa","LightContrast":"232323","CursorOutline":"121212","DarkContrast":"0f0f0f","TextBorder":"121212","Inline":"393939"}]]},
+    Gamesense = {7, [[{"Outline":"000000","Accent":"a7d94d","LightText":"ffffff","DarkText":"afafaf","LightContrast":"171717","CursorOutline":"141414","DarkContrast":"0c0c0c","TextBorder":"141414","Inline":"282828"}]]},
+    Onetap = {8, [[{"Outline":"000000","Accent":"dda85d","LightText":"d6d9e0","DarkText":"afafaf","LightContrast":"2c3037","CursorOutline":"000000","DarkContrast":"1f2125","TextBorder":"000000","Inline":"4e5158"}]]},
+    Entropy = {9, [[{"Outline":"0a0a0a","Accent":"81bbe9","LightText":"dcdcdc","DarkText":"afafaf","LightContrast":"3d3a43","CursorOutline":"000000","DarkContrast":"302f37","TextBorder":"000000","Inline":"4c4a52"}]]},
+    Interwebz = {10, [[{"Outline":"1a1a1a","Accent":"c9654b","LightText":"fcfcfc","DarkText":"a8a8a8","LightContrast":"291f38","CursorOutline":"1a1a1a","DarkContrast":"1f162b","TextBorder":"000000","Inline":"40364f"}]]},
+    Dracula = {11, [[{"Outline":"202126","Accent":"9a81b3","LightText":"b4b4b8","DarkText":"88888b","LightContrast":"2a2c38","CursorOutline":"202126","DarkContrast":"252730","TextBorder":"2a2c38","Inline":"3c384d"}]]},
+    Spotify = {12, [[{"Outline":"0a0a0a","Accent":"1ed760","LightText":"d0d0d0","DarkText":"949494","LightContrast":"181818","CursorOutline":"000000","DarkContrast":"121212","TextBorder":"000000","Inline":"292929"}]]},
+    Sublime = {13, [[{"Outline":"000000","Accent":"ff9800","LightText":"e8ffff","DarkText":"d3d3c2","LightContrast":"32332d","CursorOutline":"000000","DarkContrast":"282923","TextBorder":"000000","Inline":"484944"}]]},
+    Vape = {14, [[{"Outline":"0a0a0a","Accent":"26866a","LightText":"dcdcdc","DarkText":"afafaf","LightContrast":"1f1f1f","CursorOutline":"000000","DarkContrast":"1a1a1a","TextBorder":"000000","Inline":"363636"}]]},
+    Neko = {15, [[{"Outline":"000000","Accent":"d21f6a","LightText":"ffffff","DarkText":"afafaf","LightContrast":"171717","CursorOutline":"0a0a0a","DarkContrast":"131313","TextBorder":"000000","Inline":"2d2d2d"}]]},
+    Corn = {16, [[{"Outline":"000000","Accent":"ff9000","LightText":"dcdcdc","DarkText":"afafaf","LightContrast":"252525","CursorOutline":"000000","DarkContrast":"191919","TextBorder":"000000","Inline":"333333"}]]},
+    Minecraft = {17, [[{"Outline":"000000","Accent":"27ce40","LightText":"ffffff","DarkText":"d7d7d7","LightContrast":"333333","CursorOutline":"000000","DarkContrast":"262626","TextBorder":"000000","Inline":"333333"}]]},
+}, {
+    Configs = {},
+    Drawings = {},
+    Locals = {
+        Shift = 0,
+        ShiftTick = tick()
+    }
+}
+
+do -- utility
+    function utility:GetTableIndexes(Table, Custom)
+        local Table2 = {}
+        --
+        for Index, Value in pairs(Table) do
+            Table2[Custom and Value[1] or #Table2 + 1] = Index 
+        end
+        --
+        return Table2
+    end
+    --
+    function utility:ConvertTable(Table1)
+        local Table2 = {}
+        --
+        for Index, Value in pairs(Table1) do
+            Table2[typeof(Index) ~= "number" and Index or (#Table2 + 1)] = tostring(Value)
+        end
+        --
+        return Table2
+    end
+    --
+    function utility:ConvertString(Value)
+        if typeof(Value) == "Color3" then
+            Value = Value:ToHex()
+        end
+        --
+        return Value
+    end
+    --
+    function utility:Encode(Table)
+        local Table2 = {}
+        --
+        for Index, Value in pairs(Table) do
+            Table2[Index] = utility:ConvertString(Value)
+        end
+        --
+        return HttpService:JSONEncode(Table2)
+    end
+    --
+    function utility:Decode(Table)
+        return HttpService:JSONDecode(Table)
+    end
+    --
+    function Library:UpdateColor(ColorType, ColorValue)
+        local ColorType = ColorType:lower()
+        --
+        Theme[ColorType] = ColorValue
+        --
+        for Index, Value in pairs(Library.colors) do
+            for Index2, Value2 in pairs(Value) do
+                if Value2 == ColorType then
+                    Index[Index2] = Theme[Value2]
+                end
+            end
+        end
+    end
+    --
+    function Library:UpdateTheme(ThemeType, ThemeValue)
+        if Flags["ConfigTheme_" .. ThemeType] then
+            Flags["ConfigTheme_" .. ThemeType]:Set(ThemeValue)
+        end
+    end
+    --
+    function Library:LoadTheme(ThemeType)
+        if Themes[ThemeType] then
+            local ThemeValue = utility:Decode(Themes[ThemeType][2])
+            --
+            for Index, Value in pairs(ThemeValue) do
+                Library:UpdateTheme(Index, Color3.fromHex(Value)) 
+            end
+        end
+    end
+    --
+    function Library:RefreshConfigList()
+        Flags["ConfigConfiguration_Box"].options = Tyrisware.Configs
+        Flags["ConfigConfiguration_Box"]:Refresh()
+        Flags["ConfigConfiguration_Box"].current = Clamp(Flags["ConfigConfiguration_Box"].current, 0, #Tyrisware.Configs)
+    end
+    --
+    function Library:GetConfig()
+        local Config = ""
+        --
+        for Index, Value in pairs(Flags) do
+            print(Index, Value)
+            if Index ~= "ConfigConfiguration_Box" and Index ~= "ConfigConfiguration_Name" then
+                local Value2 = Value:Get()
+                local Final = ""
+                --
+                if typeof(Value2) == "Color3" then
+                    local Values = Value.current
+                    --
+                    Final = ("rgb(%s,%s,%s,%s)"):format(Values[1], Values[2], Values[3], Values[4])
+                elseif typeof(Value2) == "table" and Value2.Color and Value2.Transparency then
+                    local Values = Value.current
+                    --
+                    Final = ("rgb(%s,%s,%s,%s)"):format(Values[1], Values[2], Values[3], Values[4])
+                elseif Value.mode then
+                    local Values = Value.current
+                    --
+                    Final = ("key(%s,%s,%s)"):format(Values[1] or "nil", Values[2] or "nil", Value.mode)
+                elseif (Value2 ~= nil) then
+                    if typeof(Value2) == "boolean" then
+                        Value2 = ("bool(%s)"):format(tostring(Value2))
+                    elseif typeof(Value2) == "table" then
+                        local New = "table("
+                        --
+                        for Index2, Value3 in pairs(Value2) do
+                            New = New .. Value3 .. ","
+                        end
+                        --
+                        if New:sub(#New) == "," then
+                            New = New:sub(0, #New - 1)
+                        end
+                        --
+                        Value2 = New .. ")"
+                    elseif typeof(Value2) == "string" then
+                        Value2 = ("string(%s)"):format(Value2)
+                    elseif typeof(Value2) == "number" then
+                        Value2 = ("number(%s)"):format(Value2)
+                    end
+                    --
+                    Final = Value2
+                end
+                --
+                Config = Config .. Index .. ": " .. Final .. "\n"
+            end
+        end
+        print("DONE")
+        --
+        return Config .. "[ NordHook ]"
+    end
+    --
+    function Library:LoadConfig(Config)
+        if typeof(Config) == "table" then
+            for Index, Value in pairs(Config) do
+                if typeof(Flags[Index]) ~= "nil" then
+                    Flags[Index]:Set(Value)
+                end
+            end
+        end
+    end
+    --
+    function Library:PerformConfigAction(ConfigName, Action)
+        local Split = string.split
+        if ConfigName then
+            if Action == "Delete" then
+                local Found = Find(NordHook.Configs, ConfigName)
+                --
+                if Found then
+                    delfile(("nordhook/configs/%s"):format(ConfigName .. ".nh"), Config)
+                    Remove(Tyrisware.Configs, Found) 
+                    Library:RefreshConfigList()
+                end
+                --
+                delfile(("nordhook/configs/%s"):format(ConfigName .. ".nh"), Config)
+            elseif Action == "Save" then
+                local Config = Library:GetConfig()
+                --
+                if Config then
+                    print("Config is true")
+                    if not Find(NordHook.Configs, ConfigName) then
+                        print("Config not found")
+                        writefile(("nordhook/Configs/%s"):format(ConfigName .. ".nh"), Config)
+                        table.insert(NordHook.Configs, ConfigName)
+                        Library:RefreshConfigList()
+                    end
+                    --
+                    writefile(("nordhook/configs/%s"):format(ConfigName .. ".nh"), Config)
+                end
+            elseif Action == "Load" then
+                local Config = readfile(("nordhook/configs/%s"):format(ConfigName .. ".nh"))
+                local Table = Split(Config, "\n")
+                local Table2 = {}
+                --
+                if Table[#Table] == "[ Tyrisware ]" then
+                    Remove(Table, #Table)
+                end
+                --
+                for Index, Value in pairs(Table) do
+                    local Table3 = Split(Value, ":")
+                    --
+                    if Table3[1] ~= "ConfigConfiguration_Name" and #Table3 >= 2 then
+                        local Value = Table3[2]:sub(2, #Table3[2])
+                        --
+                        if Value:sub(1, 3) == "rgb" then
+                            local Table4 = Split(Value:sub(5, #Value - 1), ",")
+                            --
+                            Value = Table4
+                        elseif Value:sub(1, 3) == "key" then
+                            local Table4 = Split(Value:sub(5, #Value - 1), ",")
+                            --
+                            if Table4[1] == "nil" and Table4[2] == "nil" then
+                                Table4[1] = nil
+                                Table4[2] = nil
+                            end
+                            --
+                            Value = Table4
+                        elseif Value:sub(1, 4) == "bool" then
+                            local Bool = Value:sub(6, #Value - 1)
+                            --
+                            Value = Bool == "true"
+                        elseif Value:sub(1, 5) == "table" then
+                            local Table4 = Split(Value:sub(7, #Value - 1), ",")
+                            --
+                            Value = Table4
+                        elseif Value:sub(1, 6) == "string" then
+                            local String = Value:sub(8, #Value - 1)
+                            --
+                            Value = String
+                        elseif Value:sub(1, 6) == "number" then
+                            local Number = tonumber(Value:sub(8, #Value - 1))
+                            --
+                            Value = Number
+                        end
+                        --
+                        Table2[Table3[1]] = Value
+                    end
+                end
+                -- 
+                Library:LoadConfig(Table2)
+            end
+        end
+    end
+    --
+    local Math = {}
+    function Math:Shift(num) 
+        return num * 10
+    end
+    --
+    function Library:UpdateHue()
+        if (tick() - Tyrisware.Locals.ShiftTick) >= (1 / 60) then
+            Tyrisware.Locals.Shift = Tyrisware.Locals.Shift + 0.01
+            --
+            if Flags["ConfigTheme_AccentEffect"]:Get() == "Rainbow" then
+                Library:UpdateColor("Accent", Color3.fromHSV( tick() % 5 / 5, 0.55, 1))
+            elseif Flags["ConfigTheme_AccentEffect"]:Get() == "Shift" then
+                local Hue, Saturation, Value = Flags["ConfigTheme_Accent"]:Get():ToHSV()
+                --
+                Library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Hue + (Math:Shift(NordHook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360))), Saturation, Value))
+            elseif Flags["ConfigTheme_AccentEffect"]:Get() == "Reverse Shift" then
+                local Hue, Saturation, Value = Flags["ConfigTheme_Accent"]:Get():ToHSV()
+                --
+                Library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Clamp(Hue - (Math:Shift(NordHook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360)), 0, 9999)), Saturation, Value))
+            end
+            --
+            Tyrisware.Locals.ShiftTick = tick()
+        end
+    end
+    --
+    function utility:ClampString(String, Length, Font)
+        local Font = (Font or 2)
+        local Split = String:split("\n")
+        --
+        local Clamped = ""
+        --
+        for Index, Value2 in pairs(Split) do
+            if (Index * 13) <= Length then
+                Clamped = Clamped .. Value2 .. (Index == #Split and "" or "\n")
+            end
+        end
+        --
+        return (Clamped ~= String and (Clamped == "" and "" or Clamped:sub(0, #Clamped - 1) .. " ...") or Clamped)
+    end
+    --
+    function utility:ThreadFunction(Func, Name, ...)
+        local Func = Name and function()
+            local Passed, Statement = pcall(Func)
+            --
+            if not Passed and not Tyrisware.Safe then
+                warn("NordHook:\n", "              " .. Name .. ":", Statement)
+            end
+        end or Func
+        local Thread = coroutine.create(Func)
+        --
+        coroutine.resume(Thread, ...)
+        return Thread
+    end
+    --
+    function utility:TableToString(Table)
+        if #Table > 1 then
+            local Text = ""
+            --
+            for Index, Value in pairs(Table) do
+                Text = Text .. Value .. "\n"
+            end
+            --
+            return Text:sub(0, #Text - 1)
+        else
+            return Table[1]
+        end
+    end
+    --
+    function utility:MousePosition(Offset)
+        if Offset then
+            return UserInputService:GetMouseLocation() + Tyrisware:CursorOffset()
+        else
+            return UserInputService:GetMouseLocation()
+        end
+    end
+end
+
 return library, utility, library.pointers, theme
