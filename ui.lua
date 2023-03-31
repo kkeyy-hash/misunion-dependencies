@@ -1,16 +1,77 @@
+
+repeat wait() until game:IsLoaded() wait()
+game:GetService("Players").LocalPlayer.Idled:connect(function()
+game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+end)
+
+--[[
+    @gs.cc
+]]
+
+-- // Variables
+
 --[[
     @gs.cc
 ]]
 -- // Variables
 local ws, uis, rs, hs, cas, plrs, stats = game:GetService("Workspace"), game:GetService("UserInputService"), game:GetService("RunService"), game:GetService("HttpService"), game:GetService("ContextActionService"), game:GetService("Players"), game:GetService("Stats")
 --
+local playerlistIndividualTweak = nil
+local pListMistToggle = nil
+--
+local aimviewerTargets = {}
+--
+local removeAimviewerTarget = function(target)
+    local newta = {}
+    for i,v in next, aimviewerTargets do
+        if v[1] ~= target then
+            table.insert(newta, v)
+        end
+    end
+    aimviewerTargets = newta
+end
+--
+local isAimviewerTarget = function(target)
+    for _, v in next, aimviewerTargets do
+        if v[1] == target then
+            return true
+        end
+    end
+    return false
+end
+--
 local localplayer = plrs.LocalPlayer
 --
+local ResetMemoryCategory, SetMemoryCategory, SetUpvalueName, SetMetatable, ProfileBegin, GetMetatable, GetConstants, GetRegistry, GetUpvalues, GetConstant, SetConstant, GetUpvalue, ValidLevel, LoadModule, SetUpvalue, ProfileEnd, GetProtos, GetLocals, Traceback, SetStack, GetLocal, DumpHeap, GetProto, SetLocal, GetStack, GetFenv, GetInfo, Info = debug.resetmemorycategory, debug.setmemorycategory, debug.setupvaluename, debug.setmetatable, debug.profilebegin, debug.getmetatable, debug.getconstants, debug.getregistry, debug.getupvalues, debug.getconstant, debug.setconstant, debug.getupvalue, debug.validlevel, debug.loadmodule, debug.setupvalue, debug.profileend, debug.getprotos, debug.getlocals, debug.traceback, debug.setstack, debug.getlocal, debug.dumpheap, debug.getproto, debug.setlocal, debug.getstack, debug.getfenv, debug.getinfo, debug.info
+
+local CreateRenderObject = GetUpvalue(Drawing.new, 1)
+local DestroyRenderObject = GetUpvalue(GetUpvalue(Drawing.new, 7).__index, 3)
+local SetRenderProperty = GetUpvalue(GetUpvalue(Drawing.new, 7).__newindex, 4)
+local GetRenderProperty = GetUpvalue(GetUpvalue(Drawing.new, 7).__index, 4)
+--
 local mouse = localplayer:GetMouse()
+--
+local Client = localplayer
+--
+local cZoom, MaxZoom, MinZoom = (workspace.CurrentCamera.CoordinateFrame.p - plrs.LocalPlayer.Character.Head.Position).magnitude, plrs.LocalPlayer.CameraMaxZoomDistance, plrs.LocalPlayer.CameraMinZoomDistance
+local oMaxZoom, oMinZoom = MaxZoom, MinZoom
+--
+local LockScrolling = function()
+    print("LOCK")
+    cZoom, MaxZoom, MinZoom = (workspace.CurrentCamera.CoordinateFrame.p - plrs.LocalPlayer.Character.Head.Position).magnitude, plrs.LocalPlayer.CameraMaxZoomDistance, plrs.LocalPlayer.CameraMinZoomDistance
+    plrs.LocalPlayer.CameraMaxZoomDistance = cZoom
+    plrs.LocalPlayer.CameraMinZoomDistance = cZoom
+end
+local UnlockScrolling = function()
+    print("Unlock")
+    plrs.LocalPlayer.CameraMaxZoomDistance = oMaxZoom
+    plrs.LocalPlayer.CameraMinZoomDistance = oMinZoom
+end
 --
 local Remove = table.remove
 local Unpack = table.unpack
 local Find = table.find
+local Clamp = math.clamp
 -- UI Variables
 local library = {
     drawings = {},
@@ -32,8 +93,7 @@ local library = {
     shared = {
         initialized = false,
         fps = 0,
-        ping = 0,
-        allah = Enum.KeyCode.RightShift
+        ping = 0
     }
 }
 --
@@ -73,8 +133,15 @@ local theme = {
     font = 2,
     textsize = 13
 }
+
+
+
+
 -- // utility Functions
 do
+    --
+    
+    --
     function utility:Size(xScale,xOffset,yScale,yOffset,instance)
         if instance then
             local x = xScale*instance.Size.x+xOffset
@@ -89,6 +156,51 @@ do
             --
             return Vector2.new(x,y)
         end
+    end
+    --
+    function utility:GetClipboard()
+        print("GETCLIPBOARD")
+        repeat task.wait() until iswindowactive()
+        task.wait()
+        local Text = ""
+        --
+        local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+        syn.protect_gui(ScreenGui)
+        ScreenGui.Parent = game:GetService("CoreGui")
+        --
+        local TextBox = Instance.new("TextBox", game)
+        TextBox.Size = UDim2.new(0, 0, 0, 0)
+        TextBox.Position = UDim2.new(-999, 0, -999, 0)
+        TextBox.Parent = ScreenGui
+        TextBox.Text = ""
+        --
+        TextBox:CaptureFocus()
+        --
+        keypress(0x11)
+        keypress(0x56) 
+        task.wait()
+        keyrelease(0x56)
+        keyrelease(0x11)
+        --
+        if TextBox.Text == "" then
+            TextBox:CaptureFocus()
+            --
+            task.wait()
+            --
+            keypress(0x11)
+            keypress(0x56) 
+            task.wait()
+            keyrelease(0x56)
+            keyrelease(0x11)
+        end
+        --
+        Text = TextBox.Text
+        --
+        TextBox:Destroy()
+        ScreenGui:Destroy()
+
+        --
+        return Text
     end
     --
     function utility:Position(xScale,xOffset,yScale,yOffset,instance)
@@ -169,7 +281,7 @@ do
             quad.Visible = false
             quad.Color = Color3.fromRGB(255, 255, 255)
             quad.Thickness = 1.5
-            quad.Transparency = 1
+            quad.Transparency = 1 
             quad.ZIndex = 50
             quad.Filled = false
             quad.Transparency = library.shared.initialized and 1 or 0
@@ -380,6 +492,8 @@ do
                 connection:Disconnect()
             end
         end)
+        --
+        
     end
     --
     function utility:Combine(table1, table2)
@@ -421,6 +535,7 @@ do
         end
     end
 end
+
 -- // Library Functions
 do
     library.__index = library
@@ -440,7 +555,7 @@ do
         --
         theme.accent = accent
         --
-        local window = {pages = {}, loader = true, isVisible = false, pageammount = pageammount, callback = callback, wminfo = "nordhook | UID : %u | Ping : %s | FPS : %u", currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
+        local window = {pages = {}, loader = true, isVisible = false, pageammount = pageammount, callback = callback, wminfo = "nordhook || UID : %u || Ping : %s || Fps : %u", currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
         --
         local main_frame = utility:Create("Frame", {Vector2.new(0,0)}, {
             Size = utility:Size(0, size.X, 0, size.Y),
@@ -448,7 +563,6 @@ do
             Color = theme.outline
         });window["main_frame"] = main_frame
         --
-        print("main frame")
         library.colors[main_frame] = {
             Color = "outline"
         }
@@ -458,7 +572,6 @@ do
             Position = utility:Position(0, 1, 0, 1, main_frame),
             Color = theme.accent
         })
-        print("frame inline")
         --
         library.colors[frame_inline] = {
             Color = "accent"
@@ -482,7 +595,6 @@ do
             OutlineColor = theme.textborder,
             Position = utility:Position(0, 4, 0, 2, inner_frame)
         })
-        print("title")
         --
         library.colors[title] = {
             OutlineColor = "textborder",
@@ -548,7 +660,6 @@ do
         library.colors[tab_frame] = {
             Color = "lightcontrast"
         }
-        print("functions")
         --
         function window:SetName(Name)
             title.Text = Name
@@ -685,7 +796,6 @@ do
             end
             --
             library.shared.initialized = false
-            library.shared.allah = nil
             library.drawings = {}
             library.objects = {}
             library.hidden = {}
@@ -781,8 +891,13 @@ do
                 window.dragging = true
                 window.drag = Vector2.new(mouseLocation.X - main_frame.Position.X, mouseLocation.Y - main_frame.Position.Y)
             end
+            
             --
             if window.currentContent.textbox then
+                if uis:IsKeyDown(Enum.KeyCode["LeftControl"]) and uis:IsKeyDown(Enum.KeyCode.V) then
+                    window.currentContent.textbox.Fire((utility:GetClipboard())) 
+                    return
+                end
                 if Find(utility.Keyboard.Letters, utility:InputToString(Input.KeyCode)) then
                     if uis:IsKeyDown(Enum.KeyCode.LeftShift) then
                         window.currentContent.textbox.Fire((utility:InputToString(Input.KeyCode)):upper())
@@ -834,16 +949,26 @@ do
         end
         --
         library.began[#library.began + 1] = function(Input)
-            if Input.KeyCode == Enum.KeyCode.RightShift then
-                window:Fade()
+            if Input.KeyCode == Enum.KeyCode.P then
+                local plrs = game:GetService("Players")
+                local plr = plrs.LocalPlayer
+                if #plrs:GetPlayers() <= 1 then
+                    plr:Kick("\nRejoining...")
+                    wait()
+                    game:GetService('TeleportService'):Teleport(game.PlaceId, plr)
+                else
+                    game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, game.JobId, plr)
+                end
+            elseif Input.KeyCode == Enum.KeyCode.U then
+                window:Unload()
             end
         end
         --
-        utility:Connection(uis.InputBegan,function(Input)
+        utility:Connection(uis.InputBegan,function(Input, Typing)
             for _, func in pairs(library.began) do
                 if not window.dragging then
                     local e,s = pcall(function()
-                        func(Input)
+                        func(Input, Typing)
                     end)
                 else
                     break
@@ -899,20 +1024,7 @@ do
         --
         theme.accent = accent
         --
-        local window = {pages = {},
-        loader = style == 2, 
-        init = false,
-        pageammount = pageammount, 
-        isVisible = false,
-        callback = callback, 
-        uibind = library.shared.allah, 
-        wminfo = "nordhook | UID : %u | Ping : %s | FPS : %u", 
-        currentPage = nil, 
-        fading = false, 
-        dragging = false, 
-        drag = Vector2.new(0,0), 
-        currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}
-        }
+        local window = {pages = {}, loader = style == 2, init = false, pageammount = pageammount, isVisible = false, callback = callback, uibind = Enum.KeyCode.Z, wminfo = "$$$$$ AntarcticaWare $$$$$ || UID : %u || Ping : %s || Fps : %u", currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
         --
         local main_frame = utility:Create("Frame", {Vector2.new(0,0)}, {
             Size = utility:Size(0, size.X, 0, size.Y),
@@ -1017,6 +1129,10 @@ do
         library.colors[tab_frame] = {
             Color = "lightcontrast"
         }
+        --
+        function window:UpdateTitle(newtitle)
+            title.Text = newtitle
+        end
         --
         function ColorLerp(Value, MinColor, MaxColor)
             if Value <= 0 then return MaxColor end
@@ -1190,6 +1306,7 @@ do
                 healthbar.Color = Color
                 healthbar.Size = utility:Size(1, -2, 0, Size, healthbaroutline)
                 healthbar.Position = utility:Position(0, 1, 1, -Size - 1, healthbaroutline)
+                window.VisualPreview:UpdateHealthValue(5)
                 utility:UpdateOffset(healthbar, {Vector2.new(1, healthbaroutline.Size.Y - Size - 1), healthbaroutline})
             end
             --
@@ -1285,7 +1402,7 @@ do
             --
             library.began[#library.began + 1] = function(Input)
                 if Input.UserInputType == Enum.UserInputType.MouseButton1 and esppreview_visiblebutton.Visible and window.isVisible and utility:MouseOverDrawing({esppreview_visiblebutton.Position.X, esppreview_visiblebutton.Position.Y, esppreview_visiblebutton.Position.X + esppreview_visiblebutton.TextBounds.X, esppreview_visiblebutton.Position.Y + esppreview_visiblebutton.TextBounds.Y}) and not window:IsOverContent() then
-                    window.VisualPreview.Visible = not window.VisualPreview.Visible
+                    window.VisualPreview.Visible = false
                     esppreview_visiblebutton.Text = window.VisualPreview.Visible and "O" or "0"
                 end
             end
@@ -2064,6 +2181,7 @@ do
                     window.keybindslist:Visibility()
                 end
             end
+    
             --
             utility:Connection(ws.CurrentCamera:GetPropertyChangedSignal("ViewportSize"),function()
                 keybindslist_outline.Position = utility:Position(0, 10, 0.4, 0)
@@ -2082,8 +2200,8 @@ do
             local info = info or {}
             --
             local statuslist_outline = utility:Create("Frame", {Vector2.new(10,(utility:GetScreenSize().Y/2)-200)}, {
-                Size = utility:Size(0, 150, 0, 22),
-                Position = utility:Position(1, -160, 0.4, 0),
+                Size = utility:Size(0, 210, 0, 22),
+                Position = utility:Position(1, -220, 0.4, 0),
                 Hidden = true,
                 ZIndex = 55,
                 Color = theme.outline,
@@ -2245,6 +2363,10 @@ do
                         status_title.Visible = window.statuslist.visible
                     end
                     --
+                    function statusTable:Update(text)
+                        status_title.Text = text 
+                    end
+                    --
                     window.statuslist.statuses[statusname] = statusTable
                     window.statuslist:Resort()
                 end
@@ -2286,8 +2408,20 @@ do
                 --
                 window.statuslist:Resort()
             end)
+            --[[
+            utility:Connection(rs.Heartbeat, function()
+                if game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") ~= nil then 
+                    for i,v in next, window.statuslist.statuses do
+                        if string.match(i, "Velocity") then
+                            v:Update("Velocity | "..tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.X)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.Z)) or "0, 0, 0")
+                        else
+                            v:Update("Position | "..tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)) or "0, 0, 0")
+                        end
+                    end
+                end
+            end)
+            --]]
         end
-        --
         function window:Cursor(info)
             window.cursor = {}
             --
@@ -2325,6 +2459,8 @@ do
                 cursor_inline.PointA = Vector2.new(mouseLocation.X, mouseLocation.Y)
                 cursor_inline.PointB = Vector2.new(mouseLocation.X + 12, mouseLocation.Y + 4)
                 cursor_inline.PointC = Vector2.new(mouseLocation.X + 4, mouseLocation.Y + 12)
+
+                
             end)
             --
             uis.MouseIconEnabled = false
@@ -2361,6 +2497,8 @@ do
             window:Watermark()
             window:KeybindsList()
             window:StatusList()
+            window.statuslist:Add("Velocity - 0,0,0")
+            window.statuslist:Add("Position - 0,0,0")
             window:Cursor()
             --
             window.init = true
@@ -2377,6 +2515,10 @@ do
             end
             --
             if window.currentContent.textbox then
+                if uis:IsKeyDown(Enum.KeyCode["LeftControl"]) and uis:IsKeyDown(Enum.KeyCode.V) then
+                    window.currentContent.textbox.Fire((utility:GetClipboard())) 
+                    return
+                end
                 if Find(utility.Keyboard.Letters, utility:InputToString(Input.KeyCode)) then
                     if uis:IsKeyDown(Enum.KeyCode.LeftShift) then
                         window.currentContent.textbox.Fire((utility:InputToString(Input.KeyCode)):upper())
@@ -2445,11 +2587,11 @@ do
             end]]
         end
         --
-        utility:Connection(uis.InputBegan,function(Input)
+        utility:Connection(uis.InputBegan,function(Input, Typing)
             for _, func in pairs(library.began) do
                 if not window.dragging then
                     local e,s = pcall(function()
-                        func(Input)
+                        func(Input, Typing)
                     end)
                 else
                     break
@@ -2500,7 +2642,7 @@ do
         --
         local window = self
         --
-        local page = {open = false, sections = {}, sectionOffset = {left = 0, right = 0}, window = window}
+        local page = {name = name, open = false, sections = {}, sectionOffset = {left = 0, right = 0}, window = window}
         --
         local position = 4
         --
@@ -2594,6 +2736,8 @@ do
                 window.currentPage.page_button_title.Color = theme.textdark
                 window.currentPage.open = false
                 --
+                
+                --
                 library.colors[window.currentPage.page_button_color] = {
                     Color = "darkcontrast"
                 }
@@ -2639,6 +2783,11 @@ do
         --
         library.began[#library.began + 1] = function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and window.isVisible and utility:MouseOverDrawing({page_button.Position.X,page_button.Position.Y,page_button.Position.X + page_button.Size.X,page_button.Position.Y + page_button.Size.Y}) and window.currentPage ~= page then
+                if page.name == "Players" then
+                    window.VisualPreview:SetPreviewState(true)
+                else
+                    window.VisualPreview:SetPreviewState(false)
+                end
                 page:Show()
             end
         end
@@ -2658,7 +2807,7 @@ do
         local section = {window = window, page = page, visibleContent = {}, currentAxis = 20, side = side}
         --
         local section_inline = utility:Create("Frame", {Vector2.new(side == "right" and (window.tab_frame.Size.X/2)+2 or 5,5 + page["sectionOffset"][side]), window.tab_frame}, {
-            Size = utility:Size(window.loader and 1 or 0.5, window.loader and -10 or -7, 0, size or 22, window.tab_frame),
+            Size = utility:Size(window.loader and 1 or info.Wide and 1 or 0.5, window.loader and -10 or info.Wide and -10 or -7, 0, size or 22, window.tab_frame),
             Position = utility:Position(side == "right" and 0.5 or 0, side == "right" and 2 or 5, 0, 5 + page.sectionOffset[side], window.tab_frame),
             Color = theme.inline,
             Visible = page.open
@@ -2717,9 +2866,13 @@ do
         }
         --
         function section:Update(Padding)
-            section_inline.Size = utility:Size(window.loader and 1 or 0.5, window.loader and -10 or -7, 0, fill and (window.tab_frame.Size.Y - (Padding or 0)) or (size or (section.currentAxis+4)), window.tab_frame)
+            section_inline.Size = utility:Size(window.loader and 1 or info.Wide and 1 or 0.5, window.loader and -10 or info.Wide and -10 or -7, 0, fill and (window.tab_frame.Size.Y - (Padding or 0)) or (size or (section.currentAxis+4)), window.tab_frame)
             section_outline.Size = utility:Size(1, -2, 1, -2, section_inline)
             section_frame.Size = utility:Size(1, -2, 1, -2, section_outline)
+        end
+        --
+        function section:UpdateTitle(text)
+            section_title.Text = text
         end
         --
         page.sectionOffset[side] = page.sectionOffset[side] + 100 + 5
@@ -3173,22 +3326,26 @@ do
                 utility:UpdateTransparency(listitem_firstline, enabled and 0.3 or 0)
                 utility:UpdateTransparency(listitem_secondline, enabled and 0.3 or 0)
                 --
-                if enabled then
+                if selected ~= nil then
+                    listitem_team.Text = selected[3]
+                    listitem_team.Color =  selected[3] == "None" and theme.textcolor or selected[3] == "Antilocking" and theme.accent or theme.textcolor
+                    
                     listitem_username.Text = selected[2]
-                    listitem_team.Text = selected[1].Team and tostring(selected[1].Team) or "None"
-                    listitem_status.Text = selected[3]
+                    listitem_username.Color = selected[5] and theme.accent or theme.textcolor
+                    listitem_status.Text = selected[4]
                     --
-                    listitem_username.Color = selected[4] and theme.accent or theme.textcolor
-                    listitem_status.Color = selected[3] == "Local Player" and Color3.fromRGB(200, 55, 200) or selected[3] == "Priority" and Color3.fromRGB(55, 55, 200) or selected[3] == "Friend" and Color3.fromRGB(55, 200, 55) or selected[3] == "Enemy" and Color3.fromRGB(200, 55, 55) or theme.textcolor
-                    --
+                    listitem_status.Color = selected[4] == "Local Player" and Color3.fromRGB(200, 55, 200) or selected[4] == "Priority" and Color3.fromRGB(55, 55, 200) or selected[4] == "Friend" and Color3.fromRGB(55, 200, 55) or selected[4] == "Enemy" and Color3.fromRGB(200, 55, 55) or selected[4] == "Resolve" and Color3.fromRGB(252, 186, 3) or theme.textcolor
+                end
+                if enabled then
+                    
                     library.colors[listitem_username] = {
                         OutlineColor = "textborder",
-                        Color = selected[4] and "accent" or "textcolor"
+                        Color = selected[5] and "accent" or "textcolor"
                     }
                     -- 
                     library.colors[listitem_status] = {
                         OutlineColor = "textborder",
-                        Color = selected[3] == "None" and "textcolor" or nil
+                        Color = selected[4] == "None" and "textcolor" or nil
                     }
                 else
                     listitem_username.Text = ""
@@ -3275,7 +3432,7 @@ do
             local button = {
                 open = false,
                 current = "None",
-                options = {"None", "Friend", "Enemy", "Priority"},
+                options = {"None", "Friend", "Enemy", "Priority", "Resolve"},
                 holder = {buttons = {}, drawings = {}},
                 selection = nil
             }
@@ -3366,8 +3523,8 @@ do
                 end
                 --
                 if Selection then
-                    button_title.Text = Selection[3]
-                    button.current = Selection[3]
+                    button_title.Text = Selection[4]
+                    button.current = Selection[4]
                     button.selection = Selection
                 else
                     button.selection = nil
@@ -3485,7 +3642,7 @@ do
                                     button_title.Text = button.current
         
                                     if button.selection then
-                                        button.selection[3] = value
+                                        button.selection[4] = value
                                         playerList:Refresh(button.selection)
                                     end
         
@@ -3524,7 +3681,7 @@ do
         --
         function playerList:GetSelection()
             for Index, Value in pairs(playerList.players) do
-                if Value[4] then
+                if Value[5] then
                     return Value
                 end
             end
@@ -3562,8 +3719,10 @@ do
             end
             --
             if Relation then
-                library.Relations[Relation[1].UserId] = Relation[3] ~= "None" and Relation[3] or nil
+                library.Relations[Relation[1].UserId] = Relation[4] ~= "None" and Relation[4] or nil
             end
+            --
+            
             --
             playerList_title.Text = ("Player List - %s Players"):format(#playerList.items - 1)
             --
@@ -3571,23 +3730,38 @@ do
             --
             playerList.buttons[1]:Update(Selection)
             --
+            
+            --
             window:Move(window.main_frame.Position)
             --
             if Selection then
                 if lastselection ~= Selection then
                     lastselection = Selection
                     --
+                    playerlistIndividualTweak:UpdateTitle(Selection[1].Name.." ["..Selection[1].DisplayName.."]'s - Tweaks")
+                    --
+                    if isAimviewerTarget(Selection[1]) == true then
+                        pListMistToggle:Set(true)
+                    else
+                        pListMistToggle:Set(false)
+                    end
+                    --
                     options_avatar.Data = ""
                     options_loadingtext.Text = "..?"
                     --
                     options_title.Text = ("User ID : %s\nDisplay Name : %s\nName : %s\nHealth : %s/%s"):format(Selection[1].UserId, Selection[1].DisplayName ~= "" and Selection[1].DisplayName or Selection[1].Name, Selection[1].Name, "100", "100")
                     --
-                    local imagedata = game:HttpGet(("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=100&height=100&format=png"):format(Selection[1].UserId))
-                    --
-                    if playerList:GetSelection() == Selection then
-                        options_avatar.Data = imagedata
-                        options_loadingtext.Text = ""
-                    end
+                    task.spawn(function()
+                        
+                        local pImageData = game:GetService("HttpService"):JSONDecode(game:HttpGet(("https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=%s&size=352x352&format=Png&isCircular=false"):format(Selection[1].UserId)))
+
+                        local imagedata = game:HttpGet((pImageData["data"][1]["imageUrl"]))
+                        --
+                        if playerList:GetSelection() == Selection then
+                            options_avatar.Data = imagedata
+                            options_loadingtext.Text = ""
+                        end
+                    end)
                 end
             else
                 options_title.Text = "No player selected."
@@ -3600,7 +3774,7 @@ do
         function playerList:Update() end
         --
         utility:Connection(plrs.PlayerAdded, function(Player)
-            playerList.players[#playerList.players + 1] = {Player, Player.Name, "None", false}
+            playerList.players[#playerList.players + 1] = {Player, Player.Name,"None", "None",false}
             --
             playerList:UpdateScroll()
         end)
@@ -3616,7 +3790,7 @@ do
         end)
         --
         for Index, Value in pairs(plrs:GetPlayers()) do
-            playerList.players[#playerList.players + 1] = {Value, Value.Name, Value == localplayer and "Local Player" or "None", false}
+            playerList.players[#playerList.players + 1] = {Value, Value.Name, "None",  Value == localplayer and "Local Player" or "None", false}
         end
         --
         library.began[#library.began + 1] = function(Input)
@@ -3628,16 +3802,16 @@ do
                         local Found = playerList.players[Index + playerList.scrollingindex]
                         --
                         if Found and utility:MouseOverDrawing({list_frame.Position.X, list_frame.Position.Y + 2 + (22 * (Index - 1)), list_frame.Position.X + list_frame.Size.X, list_frame.Position.Y + 2 + (22 * (Index - 1)) + 22}) then
-                            if Found[4] then
-                                Found[4] = false
+                            if Found[5] then
+                                Found[5] = false
                             else
                                 for Index2, Value2 in pairs(playerList.players) do
                                     if Value2 ~= Found then
-                                        Value2[4] = false
+                                        Value2[5] = false
                                     end
                                 end
                                 --
-                                Found[4] = true
+                                Found[5] = true
                             end
                             --
                             playerList:UpdateScroll()
@@ -4468,7 +4642,9 @@ do
             --
             keybind:Change(def)
             --
-            library.began[#library.began + 1] = function(Input)
+            library.began[#library.began + 1] = function(Input, Typing)
+                
+                if Typing then return end
                 if keybind.current[1] and keybind.current[2] then
                     if Input.KeyCode == Enum[keybind.current[1]][keybind.current[2]] or Input.UserInputType == Enum[keybind.current[1]][keybind.current[2]] then
                         if keybind.mode == "On Hold" then
@@ -6029,7 +6205,9 @@ do
         --
         keybind:Change(def)
         --
-        library.began[#library.began + 1] = function(Input)
+        library.began[#library.began + 1] = function(Input, Typing)
+            
+            if Typing then return end
             if keybind.current[1] and keybind.current[2] then
                 if Input.KeyCode == Enum[keybind.current[1]][keybind.current[2]] or Input.UserInputType == Enum[keybind.current[1]][keybind.current[2]] then
                     if keybind.mode == "On Hold" then
@@ -6187,7 +6365,9 @@ do
             end
         end
         --
-        library.ended[#library.ended + 1] = function(Input)
+        library.ended[#library.ended + 1] = function(Input, Typing)
+            
+            if Typing then return end
             if keybind.mode == "On Hold" or keybind.mode == "Off Hold" then
                 if keybind.current[1] and keybind.current[2] then
                     if Input.KeyCode == Enum[keybind.current[1]][keybind.current[2]] or Input.UserInputType == Enum[keybind.current[1]][keybind.current[2]] then
@@ -6366,6 +6546,10 @@ do
         --
         function colorpicker:Get()
             return Color3.fromHSV(colorpicker.current[1], colorpicker.current[2], colorpicker.current[3])
+        end
+        --
+        function colorpicker:GetTransparency()
+            return colorpicker.current[4]
         end
         --
         library.began[#library.began + 1] = function(Input)
@@ -6810,6 +6994,10 @@ do
             --
             function colorpicker:Get()
                 return Color3.fromHSV(colorpicker.current[1], colorpicker.current[2], colorpicker.current[3])
+            end
+            --
+            function colorpicker:GetTransparency()
+                return colorpicker.current[4]
             end
             --
             library.began[#library.began + 1] = function(Input)
@@ -7315,4 +7503,3 @@ do
     end
 end
 --
-return library, utility, library.pointers, theme
