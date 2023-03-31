@@ -1,15 +1,3 @@
-
-repeat wait() until game:IsLoaded() wait()
-game:GetService("Players").LocalPlayer.Idled:connect(function()
-game:GetService("VirtualUser"):ClickButton2(Vector2.new())
-end)
-
---[[
-    @gs.cc
-]]
-
--- // Variables
-
 --[[
     @gs.cc
 ]]
@@ -57,13 +45,11 @@ local cZoom, MaxZoom, MinZoom = (workspace.CurrentCamera.CoordinateFrame.p - plr
 local oMaxZoom, oMinZoom = MaxZoom, MinZoom
 --
 local LockScrolling = function()
-    print("LOCK")
     cZoom, MaxZoom, MinZoom = (workspace.CurrentCamera.CoordinateFrame.p - plrs.LocalPlayer.Character.Head.Position).magnitude, plrs.LocalPlayer.CameraMaxZoomDistance, plrs.LocalPlayer.CameraMinZoomDistance
     plrs.LocalPlayer.CameraMaxZoomDistance = cZoom
     plrs.LocalPlayer.CameraMinZoomDistance = cZoom
 end
 local UnlockScrolling = function()
-    print("Unlock")
     plrs.LocalPlayer.CameraMaxZoomDistance = oMaxZoom
     plrs.LocalPlayer.CameraMinZoomDistance = oMinZoom
 end
@@ -159,7 +145,6 @@ do
     end
     --
     function utility:GetClipboard()
-        print("GETCLIPBOARD")
         repeat task.wait() until iswindowactive()
         task.wait()
         local Text = ""
@@ -7502,4 +7487,5 @@ do
         return list
     end
 end
+return library
 --
