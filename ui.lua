@@ -7,27 +7,6 @@ local ws, uis, rs, hs, cas, plrs, stats = game:GetService("Workspace"), game:Get
 local playerlistIndividualTweak = nil
 local pListMistToggle = nil
 --
-local aimviewerTargets = {}
---
-local removeAimviewerTarget = function(target)
-    local newta = {}
-    for i,v in next, aimviewerTargets do
-        if v[1] ~= target then
-            table.insert(newta, v)
-        end
-    end
-    aimviewerTargets = newta
-end
---
-local isAimviewerTarget = function(target)
-    for _, v in next, aimviewerTargets do
-        if v[1] == target then
-            return true
-        end
-    end
-    return false
-end
---
 local localplayer = plrs.LocalPlayer
 --
 local ResetMemoryCategory, SetMemoryCategory, SetUpvalueName, SetMetatable, ProfileBegin, GetMetatable, GetConstants, GetRegistry, GetUpvalues, GetConstant, SetConstant, GetUpvalue, ValidLevel, LoadModule, SetUpvalue, ProfileEnd, GetProtos, GetLocals, Traceback, SetStack, GetLocal, DumpHeap, GetProto, SetLocal, GetStack, GetFenv, GetInfo, Info = debug.resetmemorycategory, debug.setmemorycategory, debug.setupvaluename, debug.setmetatable, debug.profilebegin, debug.getmetatable, debug.getconstants, debug.getregistry, debug.getupvalues, debug.getconstant, debug.setconstant, debug.getupvalue, debug.validlevel, debug.loadmodule, debug.setupvalue, debug.profileend, debug.getprotos, debug.getlocals, debug.traceback, debug.setstack, debug.getlocal, debug.dumpheap, debug.getproto, debug.setlocal, debug.getstack, debug.getfenv, debug.getinfo, debug.info
