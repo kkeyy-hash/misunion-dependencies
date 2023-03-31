@@ -4,7 +4,6 @@
 -- // Variables
 local ws, uis, rs, hs, cas, plrs, stats = game:GetService("Workspace"), game:GetService("UserInputService"), game:GetService("RunService"), game:GetService("HttpService"), game:GetService("ContextActionService"), game:GetService("Players"), game:GetService("Stats")
 --
-print("passed vars")
 local localplayer = plrs.LocalPlayer
 --
 local mouse = localplayer:GetMouse()
@@ -26,9 +25,9 @@ local library = {
     hovers = {},
     Relations = {},
     folders = {
-        main = "nordhook",
-        assets = "nordhook/Images",
-        configs = "nordhook/Configs"
+        main = "misunion",
+        assets = "misunion/assets",
+        configs = "misunion/configs"
     },
     shared = {
         initialized = false,
@@ -422,7 +421,6 @@ do
         end
     end
 end
-print("passed utils")
 -- // Library Functions
 do
     library.__index = library
@@ -442,8 +440,7 @@ do
         --
         theme.accent = accent
         --
-        print("in loader")
-        local window = {pages = {}, loader = true, isVisible = false, pageammount = pageammount, callback = callback, wminfo = "nordhook | UID : %u | Ping : %s | FPS : %u", currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
+        local window = {pages = {}, loader = true, isVisible = false, pageammount = pageammount, callback = callback, wminfo = "misunion | UID : %u | Ping : %s | FPS : %u", currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
         --
         local main_frame = utility:Create("Frame", {Vector2.new(0,0)}, {
             Size = utility:Size(0, size.X, 0, size.Y),
@@ -909,7 +906,7 @@ do
         isVisible = false,
         callback = callback, 
         uibind = library.shared.allah, 
-        wminfo = "nordhook | UID : %u | Ping : %s | FPS : %u", 
+        wminfo = "misunion | UID : %u | Ping : %s | FPS : %u", 
         currentPage = nil, 
         fading = false, 
         dragging = false, 
