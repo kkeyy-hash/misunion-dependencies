@@ -7377,7 +7377,7 @@ do -- utility
         return HttpService:JSONDecode(Table)
     end
     --
-    function Library:UpdateColor(ColorType, ColorValue)
+    function library:UpdateColor(ColorType, ColorValue)
         local ColorType = ColorType:lower()
         --
         Theme[ColorType] = ColorValue
@@ -7391,29 +7391,29 @@ do -- utility
         end
     end
     --
-    function Library:UpdateTheme(ThemeType, ThemeValue)
+    function library:UpdateTheme(ThemeType, ThemeValue)
         if Flags["ConfigTheme_" .. ThemeType] then
             Flags["ConfigTheme_" .. ThemeType]:Set(ThemeValue)
         end
     end
     --
-    function Library:LoadTheme(ThemeType)
+    function library:LoadTheme(ThemeType)
         if Themes[ThemeType] then
             local ThemeValue = utility:Decode(Themes[ThemeType][2])
             --
             for Index, Value in pairs(ThemeValue) do
-                Library:UpdateTheme(Index, Color3.fromHex(Value)) 
+                library:UpdateTheme(Index, Color3.fromHex(Value)) 
             end
         end
     end
     --
-    function Library:RefreshConfigList()
-        Flags["ConfigConfiguration_Box"].options = Tyrisware.Configs
+    function library:RefreshConfigList()
+        Flags["ConfigConfiguration_Box"].options = NordHook.Configs
         Flags["ConfigConfiguration_Box"]:Refresh()
         Flags["ConfigConfiguration_Box"].current = Clamp(Flags["ConfigConfiguration_Box"].current, 0, #Tyrisware.Configs)
     end
     --
-    function Library:GetConfig()
+    function library:GetConfig()
         local Config = ""
         --
         for Index, Value in pairs(Flags) do
@@ -7466,7 +7466,7 @@ do -- utility
         return Config .. "[ NordHook ]"
     end
     --
-    function Library:LoadConfig(Config)
+    function library:LoadConfig(Config)
         if typeof(Config) == "table" then
             for Index, Value in pairs(Config) do
                 if typeof(Flags[Index]) ~= "nil" then
@@ -7476,7 +7476,7 @@ do -- utility
         end
     end
     --
-    function Library:PerformConfigAction(ConfigName, Action)
+    function library:PerformConfigAction(ConfigName, Action)
         local Split = string.split
         if ConfigName then
             if Action == "Delete" then
@@ -7563,23 +7563,23 @@ do -- utility
         return num * 10
     end
     --
-    function Library:UpdateHue()
-        if (tick() - Tyrisware.Locals.ShiftTick) >= (1 / 60) then
-            Tyrisware.Locals.Shift = Tyrisware.Locals.Shift + 0.01
+    function library:UpdateHue()
+        if (tick() - NordHook.Locals.ShiftTick) >= (1 / 60) then
+            NordHook.Locals.Shift = Tyrisware.Locals.Shift + 0.01
             --
             if Flags["ConfigTheme_AccentEffect"]:Get() == "Rainbow" then
-                Library:UpdateColor("Accent", Color3.fromHSV( tick() % 5 / 5, 0.55, 1))
+                library:UpdateColor("Accent", Color3.fromHSV( tick() % 5 / 5, 0.55, 1))
             elseif Flags["ConfigTheme_AccentEffect"]:Get() == "Shift" then
                 local Hue, Saturation, Value = Flags["ConfigTheme_Accent"]:Get():ToHSV()
                 --
-                Library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Hue + (Math:Shift(NordHook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360))), Saturation, Value))
+                library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Hue + (Math:Shift(NordHook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360))), Saturation, Value))
             elseif Flags["ConfigTheme_AccentEffect"]:Get() == "Reverse Shift" then
                 local Hue, Saturation, Value = Flags["ConfigTheme_Accent"]:Get():ToHSV()
                 --
-                Library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Clamp(Hue - (Math:Shift(NordHook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360)), 0, 9999)), Saturation, Value))
+                library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Clamp(Hue - (Math:Shift(NordHook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360)), 0, 9999)), Saturation, Value))
             end
             --
-            Tyrisware.Locals.ShiftTick = tick()
+            NordHook.Locals.ShiftTick = tick()
         end
     end
     --
