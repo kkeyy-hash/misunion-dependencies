@@ -7635,4 +7635,4 @@ do -- utility
     end
 end
 
-return library, utility, library.pointers, theme
+return library, utility, library.pointers, theme, NordHook
