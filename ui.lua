@@ -7497,6 +7497,7 @@ local NordHook = {
     Locals = {
         LastPreviewUpdate = 5
     },
+    Safe = true,
     Configs = {}
 }
 -- hello matas
