@@ -554,10 +554,10 @@ do
     library.__index = library
 	pages.__index = pages
 	sections.__index = sections
-	library.notification = loadstring(Request({
-        Url = "https://github.com/kkeyy-hash/nordhook/blob/main/libraries/Notification.lua", 
+	library.notification = loadstring(syn.request({
+        Url = "https://raw.githubusercontent.com/kkeyy-hash/nordhook/main/libraries/Notification.lua", 
         Method = "GET"
-    }).Body)
+    }).Body)()
     --
     function library:Notification(info)
         library.notification:notification({Title = "NordHook" or info.Title or info.title, Text = info.Text or info.text, Duration = info.Duration or info.duration})

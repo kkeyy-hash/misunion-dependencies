@@ -100,7 +100,6 @@ function module:notification(properties)
     -- functions
     coroutine.wrap(function()
         while wait() and outer.Position.Y ~= y - 50 do
-            warn(outer.Position.Y, y)
             outer.Position = Vector2.new(outer.Position.X, outer.Position.Y - 5)
             inner_outline.Position = Vector2.new(outer.Position.X + 1, outer.Position.Y + 1)
             inner.Position = Vector2.new(inner_outline.Position.X + 1, inner_outline.Position.Y + 1)
