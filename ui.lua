@@ -1927,7 +1927,7 @@ do
     
                 if tick() - Tick > 0.1 then
                     Tick = tick()
-                    watermark_title.Text = "$$ nordhook $$ / " .. game.Players.LocalPlayer.UserId .. " uid / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
+                    watermark_title.Text = "$$ nordhook $$ / uid " .. getgenv().userData["uid"] or "1" .. " / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
                     window.watermark:UpdateSize()
                 end
             end)
