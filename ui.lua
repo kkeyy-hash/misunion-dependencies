@@ -144,7 +144,7 @@ do
         
         conn = game:GetService('RunService').RenderStepped:Connect(function(delta)
             pcall(function()
-                c_time += delta
+                c_time = c_time + delta
                 obj.Size = s_size:Lerp(e_size, game.TweenService:GetValue(c_time / m_time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out))
                 if c_time > m_time then
                     if properties.Callback then properties.Callback() end
@@ -553,8 +553,11 @@ end
 do
     library.__index = library
 	pages.__index = pages
-	sections.__index = sections/
-    library.notification = loadstring(syn.request({ Url = "https://github.com/kkeyy-hash/nordhook/blob/main/libraries/Notification.lua", Method = "GET"}).Body)()
+	sections.__index = sections
+	library.notification = loadstring(Request({
+        Url = "https://github.com/kkeyy-hash/nordhook/blob/main/libraries/Notification.lua", 
+        Method = "GET"
+    }).Body)
     --
     function library:Notification(info)
         library.notification:notification({Title = "NordHook" or info.Title or info.title, Text = info.Text or info.text, Duration = info.Duration or info.duration})
