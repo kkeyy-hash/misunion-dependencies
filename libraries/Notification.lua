@@ -16,7 +16,7 @@ function module:tween(obj, properties)
     
     conn = game:GetService('RunService').RenderStepped:Connect(function(delta)
         pcall(function()
-            c_time += delta
+            c_time = c_time + delta
             obj.Size = s_size:Lerp(e_size, game.TweenService:GetValue(c_time / m_time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out))
             if c_time > m_time then
                 if properties.Callback then properties.Callback() end
