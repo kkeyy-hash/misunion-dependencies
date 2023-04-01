@@ -550,7 +550,7 @@ do
         --
         theme.accent = accent
         --
-        local window = {pages = {}, loader = true, isVisible = false, pageammount = pageammount, callback = callback, wminfo = "$$$$$ AntarcticaWare $$$$$ || UID : %u || Ping : %s || Fps : %u", currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
+        local window = {pages = {}, loader = true, isVisible = false, pageammount = pageammount, callback = callback, wminfo = "$$ nordhook $$ || UID: " .. game.Players.LocalPlayer.UserId .. " || Ping: " .. library.shared.ping .. " || FPS: " .. library.shared.fps, currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
         --
         local main_frame = utility:Create("Frame", {Vector2.new(0,0)}, {
             Size = utility:Size(0, size.X, 0, size.Y),
