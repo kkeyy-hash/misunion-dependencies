@@ -40,13 +40,6 @@ local pListMistToggle = nil
 --
 local localplayer = plrs.LocalPlayer
 --
-local ResetMemoryCategory, SetMemoryCategory, SetUpvalueName, SetMetatable, ProfileBegin, GetMetatable, GetConstants, GetRegistry, GetUpvalues, GetConstant, SetConstant, GetUpvalue, ValidLevel, LoadModule, SetUpvalue, ProfileEnd, GetProtos, GetLocals, Traceback, SetStack, GetLocal, DumpHeap, GetProto, SetLocal, GetStack, GetFenv, GetInfo, Info = debug.resetmemorycategory, debug.setmemorycategory, debug.setupvaluename, debug.setmetatable, debug.profilebegin, debug.getmetatable, debug.getconstants, debug.getregistry, debug.getupvalues, debug.getconstant, debug.setconstant, debug.getupvalue, debug.validlevel, debug.loadmodule, debug.setupvalue, debug.profileend, debug.getprotos, debug.getlocals, debug.traceback, debug.setstack, debug.getlocal, debug.dumpheap, debug.getproto, debug.setlocal, debug.getstack, debug.getfenv, debug.getinfo, debug.info
-
-local CreateRenderObject = GetUpvalue(Drawing.new, 1)
-local DestroyRenderObject = GetUpvalue(GetUpvalue(Drawing.new, 7).__index, 3)
-local SetRenderProperty = GetUpvalue(GetUpvalue(Drawing.new, 7).__newindex, 4)
-local GetRenderProperty = GetUpvalue(GetUpvalue(Drawing.new, 7).__index, 4)
---
 local mouse = localplayer:GetMouse()
 --
 local Client = localplayer
@@ -1927,7 +1920,7 @@ do
     
                 if tick() - Tick > 0.1 then
                     Tick = tick()
-                    watermark_title.Text = "$$ nordhook $$ / uid " .. getgenv().userData and getgenv().userData.uid or "1" .. " / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
+                    watermark_title.Text = "$$ nordhook $$ / " .. getgenv().scriptData and getgenv().scriptData.build or "dev" .. " / uid " .. getgenv().userData and getgenv().userData.uid or "1" .. " / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
                     window.watermark:UpdateSize()
                 end
             end)
@@ -7500,32 +7493,7 @@ local NordHook = {
     Locals = {
         LastPreviewUpdate = 5
     },
-    Account = {
-        Username = game.Players.LocalPlayer.Name,
-        UserID = game.Players.LocalPlayer.UserId
-    },
-    Configs = {},
-    Weapons = { 
-        "Glock",
-        "SMG",
-        "Silencer",
-        "TacticalShotgun",
-        "P90",
-        "AUG",
-        "Shotgun",
-        "RPG",
-        "AR",
-        "Double-Barrel SG",
-        "Flamethrower",
-        "Revolver",
-        "LMG",
-        "AK47",
-        "DrumGun",
-        "Silencer",
-        "GrenadeLauncher",
-        "Taser",
-        "SilencerAR"
-    }
+    Configs = {}
 }
 -- hello matas
 function utility:UpdatePreview(Pass)
