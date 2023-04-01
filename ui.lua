@@ -133,6 +133,29 @@ do
     --
     
     --
+    function utility:tween(obj, properties)
+        local c_time = 0
+        local m_time = properties.Duration
+        
+        local s_size = properties.Start
+        local e_size = properties.End
+        
+        local conn
+        
+        conn = game:GetService('RunService').RenderStepped:Connect(function(delta)
+            pcall(function()
+                c_time += delta
+                obj.Size = s_size:Lerp(e_size, game.TweenService:GetValue(c_time / m_time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out))
+                if c_time > m_time then
+                    if properties.Callback then properties.Callback() end
+                    
+                    conn:Disconnect()
+                    conn = nil
+                end
+            end)
+        end)
+    end
+    --
     function utility:Size(xScale,xOffset,yScale,yOffset,instance)
         if instance then
             local x = xScale*instance.Size.x+xOffset
@@ -530,9 +553,11 @@ end
 do
     library.__index = library
 	pages.__index = pages
-	sections.__index = sections
+	sections.__index = sections/
+    library.notification = loadstring(syn.request({ Url = "https://github.com/kkeyy-hash/nordhook/blob/main/libraries/Notification.lua", Method = "GET"}).Body)()
     --
     function library:Notification(info)
+        library.notification:notification({Title = "NordHook" or info.Title or info.title, Text = info.Text or info.text, Duration = info.Duration or info.duration})
     end
     --
     function library:Loader(info)
