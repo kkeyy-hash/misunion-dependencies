@@ -1019,7 +1019,7 @@ do
         --
         theme.accent = accent
         --
-        local window = {pages = {}, loader = style == 2, init = false, pageammount = pageammount, isVisible = false, callback = callback, uibind = Enum.KeyCode.Z, wminfo = "$$$$$ AntarcticaWare $$$$$ || UID : %u || Ping : %s || Fps : %u", currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
+        local window = {pages = {}, loader = style == 2, init = false, pageammount = pageammount, isVisible = false, callback = callback, uibind = Enum.KeyCode.Z, wminfo = "$$ nordhook $$ || UID: " .. game.Players.LocalPlayer.UserId .. " || Ping: " .. library.shared.ping .. " || FPS: " .. library.shared.fps, currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
         --
         local main_frame = utility:Create("Frame", {Vector2.new(0,0)}, {
             Size = utility:Size(0, size.X, 0, size.Y),
@@ -1849,7 +1849,8 @@ do
                 ZIndex = 60,
                 Color = theme.outline,
                 Visible = window.watermark.visible
-            })window.watermark.outline = watermark_outline
+            })
+            window.watermark.outline = watermark_outline
             --
             library.colors[watermark_outline] = {
                 Color = "outline"
@@ -1895,7 +1896,7 @@ do
             }
             --
             local watermark_title = utility:Create("TextLabel", {Vector2.new(2 + 6,4), watermark_outline}, {
-                Text = "Failed Loading Watermark.",
+                Text = watermark_name,
                 Size = theme.textsize,
                 Font = theme.font,
                 Color = theme.textcolor,
@@ -1918,6 +1919,20 @@ do
                 watermark_accent.Size = utility:Size(1, 0, 0, 1, watermark_frame)
             end
             --
+            local Tick = tick()
+            --
+            utility:Connection(game.RunService.RenderStepped, function(delta)
+                library.shared.fps = 1 / delta
+                library.shared.ping = stats.Network.ServerStatsItem["Data Ping"]:GetValue()
+    
+                if tick() - Tick > 0.1 then
+                    Tick = tick()
+                    watermark_title.Text = "$$ nordhook $$ / " .. game.Players.LocalPlayer.UserId .. " uid / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
+                    window.watermark:UpdateSize()
+                end
+            end)
+            --
+            --
             function window.watermark:Visibility()
                 watermark_outline.Visible = window.watermark.visible
                 watermark_inline.Visible = window.watermark.visible
@@ -1935,25 +1950,7 @@ do
             --
             window.watermark:UpdateSize()
             --
-            local temp = tick()
-            local Tick = tick()
-            --
-            utility:Connection(rs.RenderStepped, function(FPS)
-                library.shared.fps = math.floor(1 / math.abs(temp - tick()))
-                temp = tick()
-                library.shared.ping = stats.Network:FindFirstChild("ServerStatsItem") and tostring(math.round(stats.Network.ServerStatsItem["Data Ping"]:GetValue())) or "Unknown"
-                --
-                task.spawn(function()
-                    if (tick() - Tick) > 0.15 then
-                        watermark_title.Text = window.wminfo:gsub("$PING", library.shared.ping):gsub("$FPS", library.shared.fps)
-                        window.watermark:UpdateSize()
-                        --
-                        Tick = tick()
-                    end
-                end)
-            end)
-            --
-            return window.watermark
+            return window.watermark, watermark_title
         end
         --
         function window:KeybindsList(info)
@@ -2489,7 +2486,7 @@ do
             --
             library.shared.initialized = true
             --
-            window:Watermark()
+            local watermark, watermarklabel = window:Watermark({ text = "$$ nordhook $$ || UID: " .. game.Players.LocalPlayer.UserId .. " || Ping: " .. library.shared.ping .. " || FPS: " .. library.shared.fps })
             window:KeybindsList()
             window:StatusList()
             window.statuslist:Add("Velocity - 0,0,0")
@@ -7635,6 +7632,7 @@ function utility:UpdatePreview(Pass)
 end
 --
 utility:Connection(rs.Heartbeat, function()
+    utility:ThreadFunction(library.UpdateHue, "0x01")
     local Tick = tick()
     --
     if (Tick - NordHook.Locals.LastPreviewUpdate) > 0.05 then
