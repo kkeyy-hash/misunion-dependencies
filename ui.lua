@@ -8004,6 +8004,7 @@ do -- utility
                 end
                 --
                 delfile(("NordHook/Configs/%s"):format(ConfigName .. ".NordHook"), Config)
+                Library:RefreshConfigList()
             elseif Action == "Save" then
                 local Config = Library:GetConfig()
                 --
