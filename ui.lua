@@ -30,6 +30,8 @@ do
         end
     end
 end
+getgenv().scriptData = getgenv().scriptData and getgenv().scriptData or {build = "dev"}
+getgenv().userData = getgenv().userData and getgenv().userData or {uid = "1"}
 
 
 -- // Variables
@@ -1913,6 +1915,8 @@ do
             end
             --
             local Tick = tick()
+            local Build = getgenv().scriptData ~= nil and getgenv().scriptData.build or "dev"
+            local UID = getgenv().userData ~= nil and getgenv().userData.uid or "1"
             --
             utility:Connection(game.RunService.RenderStepped, function(delta)
                 library.shared.fps = 1 / delta
@@ -1920,7 +1924,7 @@ do
     
                 if tick() - Tick > 0.1 then
                     Tick = tick()
-                    watermark_title.Text = "$$ nordhook $$ / " .. getgenv().scriptData and getgenv().scriptData.build or "dev" .. " / uid " .. getgenv().userData and getgenv().userData.uid or "1" .. " / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
+                    watermark_title.Text = "$$ nordhook $$ / " .. Build .. " / uid " .. UID .. " / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
                     window.watermark:UpdateSize()
                 end
             end)
