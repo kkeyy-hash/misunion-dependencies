@@ -3112,11 +3112,11 @@ do
         local size = watermark.objects.background.Size;
         local screensize = workspace.CurrentCamera.ViewportSize;
         watermark.set_lock = function(lock)
-            local newpos = lock == 'Top Right' and udim2_new(0, screensize.X - size.X.Offset - 370, 0, 15) or
-            lock == 'Top Left' and udim2_new(0, 15, 0, 15) or
-            lock == 'Bottom Right' and udim2_new(0, screensize.X - size.X.Offset - 370, 0, screensize.Y - size.Y.Offset - 25) or
-            lock == 'Bottom Left' and udim2_new(0, 15, 0, screensize.Y - size.Y.Offset - 25) or
-            lock == 'Top' and udim2_new(0, screensize.X / 2.65 - size.X.Offset / 3, 0, 15)
+            local newpos = lock == 'top right' and udim2_new(0, screensize.X - size.X.Offset - 370, 0, 15) or
+            lock == 'top left' and udim2_new(0, 15, 0, 15) or
+            lock == 'bottom right' and udim2_new(0, screensize.X - size.X.Offset - 370, 0, screensize.Y - size.Y.Offset - 25) or
+            lock == 'bottom left' and udim2_new(0, 15, 0, screensize.Y - size.Y.Offset - 25) or
+            lock == 'top' and udim2_new(0, screensize.X / 2.65 - size.X.Offset / 3, 0, 15)
             watermark.position = newpos
             watermark.objects.background.Position = newpos
 
@@ -3571,7 +3571,7 @@ function library:CreateSettings(Window)
     Sections["settings"]["main"]:toggle({text = "watermark", flag = "watermark_enabled", state = true, callback = function(bool)
         library.watermark.set_enabled(bool)
     end})
-    Sections["settings"]["main"]:dropdown({text = "position", flag = "watermark_position", selected = "Top", values = {"Top Right", "Top Left", "Bottom Right", "Bottom Left", "Top"}, callback = function(value)
+    Sections["settings"]["main"]:dropdown({text = "position", flag = "watermark_position", selected = "top", values = {"top right", "top left", "bottom right", "bottom left", "top"}, callback = function(value)
         library.watermark.set_lock(value)
     end})
     Sections["settings"]["main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "custom x", flag = "watermark_x", enabled = true, callback = function(value)
