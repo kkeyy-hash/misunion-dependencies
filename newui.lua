@@ -177,8 +177,8 @@ do
         library[i] = v
     end
 
-    makefolder(library.cheatname .. '/configs')
-    makefolder(library.cheatname .. '/themes')
+    makefolder(library.cheatname .. '/configs') -- library.cheatname .. '/Configs'
+    makefolder(library.cheatname .. '/themes') -- library.cheatname .. '/Themes'
 
     library.mouse_strings = {
         [Enum.UserInputType.MouseButton1] = 'MB1',
@@ -3057,7 +3057,7 @@ do
         watermark.text = properties.text or {
             'nordhook.cc',
             library.gamename,
-            tostring(userData.uid),
+            "uid " .. tostring(userData.uid),
             '999ms',
             '999 fps'
         }
@@ -3474,7 +3474,7 @@ end
 
 -- // finish
 library.keybind_indicator = library:create('indicator', {title = 'Keybinds', position = udim2_new(0,10,0,450), enabled = false})
-library.watermark = library:create('watermark', {text = {"nordhook.cc", library.gamename, tostring(userData.uid), "999ms", "999 fps"}, enabled = true})
+library.watermark = library:create('watermark', {text = {"nordhook.cc", library.gamename, "uid " .. tostring(userData.uid), "999ms", "999 fps"}, enabled = true})
 library.colorpicker = library:create('colorpicker', {})
 library.dropdown = {selected = nil, objects = {values = {}}, connections = {}}
 
