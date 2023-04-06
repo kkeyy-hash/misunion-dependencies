@@ -3623,7 +3623,7 @@ function library:CreateSettings(Window)
         xpcall(function()
             if library.options.autoload_cfg and library.flags.Config_Selected ~= "" or library.flags.Config_Selected ~= "none" then
                 writefile(library.cheatname .. "/configs/autoload.txt", library.flags.Config_Selected)
-                library.options.autoload_cfg:set_text("Auto Load: " .. library.flags.Config_Selected)
+                library.options.autoload_cfg:set_text("auto load: " .. library.flags.Config_Selected)
                 library:save_config(library.flags.Config_Selected)
                 library:notification(("successfully set auto load config to '%s'"):format(library.flags.Config_Selected), 5, Color3.new(0.35, 1, 0.35))
             end
@@ -3706,7 +3706,7 @@ function library:CreateSettings(Window)
         xpcall(function()
             if library.options.autoload_theme and library.flags.Theme_Selected ~= "" or library.flags.Theme_Selected ~= "none" then
                 writefile(library.cheatname .. "/themes/autoload.txt", library.flags.Theme_Selected)
-                library.options.autoload_theme:set_text("Auto Load: " .. library.flags.Theme_Selected)
+                library.options.autoload_theme:set_text("auto load: " .. library.flags.Theme_Selected)
                 library:notification(("successfully set auto load theme to '%s'"):format(library.flags.Theme_Selected), 5, Color3.new(0.35, 1, 0.35))
             end
         end, function(err)
