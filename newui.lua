@@ -1,18 +1,18 @@
 --> Creating Folders & Getting User Data <--
 do
-    if not isfolder("NordHook") then makefolder("NordHook") end
-    if not isfolder("NordHook/Configs") then makefolder("NordHook/Configs") end
-    if not isfolder("NordHook/Themes") then makefolder("NordHook/Themes") end
-    if not isfolder("NordHook/Sounds") then makefolder("NordHook/Sounds") end
-    if not isfolder("NordHook/Assets") then makefolder("NordHook/Assets") end
+    if not isfolder("nordhook") then makefolder("nordhook") end
+    if not isfolder("nordhook/Configs") then makefolder("nordhook/configs") end
+    if not isfolder("nordhook/Themes") then makefolder("nordhook/themes") end
+    if not isfolder("nordhook/Sounds") then makefolder("nordhook/sounds") end
+    if not isfolder("nordhook/Assets") then makefolder("nordhook/assets") end
 
     local Request = (syn and syn.request) or request
 
     --> Sounds <--
     local Sounds = {"agpa2", "bubble", "bubble_2", "fatality", "neverlose", "skeet"}
     for Index, Name in next, Sounds do
-        if not isfile("NordHook/Sounds/" .. Name .. ".wav") then
-            writefile("NordHook/Sounds/" .. Name .. ".wav", Request({
+        if not isfile("nordhook/sounds/" .. Name .. ".wav") then
+            writefile("nordhook/sounds/" .. Name .. ".wav", Request({
                 Url = "https://github.com/kkeyy-hash/nordhook/blob/main/sounds/" .. Name .. ".wav?raw=true", 
                 Method = "GET"
             }).Body)
@@ -22,8 +22,8 @@ do
     --> Assets <--
     local Assets = {"arrow_down", "arrow_up", "beam", "cptransp", "gradient", "gradientdown", "hue", "transp", "transp2", "valsat", "valsat_cursor"}
     for Index, Name in next, Assets do
-        if not isfile("NordHook/Assets/" .. Name .. ".png") then
-            writefile("NordHook/Assets/" .. Name .. ".png", Request({
+        if not isfile("nordhook/assets/" .. Name .. ".png") then
+            writefile("nordhook/assets/" .. Name .. ".png", Request({
                 Url = "https://github.com/kkeyy-hash/nordhook/blob/main/assets/" .. Name .. ".png?raw=true", 
                 Method = "GET"
             }).Body)
