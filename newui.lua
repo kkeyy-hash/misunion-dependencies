@@ -1,10 +1,10 @@
 --> Creating Folders & Getting User Data <--
 do
     if not isfolder("nordhook") then makefolder("nordhook") end
-    if not isfolder("nordhook/Configs") then makefolder("nordhook/configs") end
-    if not isfolder("nordhook/Themes") then makefolder("nordhook/themes") end
-    if not isfolder("nordhook/Sounds") then makefolder("nordhook/sounds") end
-    if not isfolder("nordhook/Assets") then makefolder("nordhook/assets") end
+    if not isfolder("nordhook/configs") then makefolder("nordhook/configs") end
+    if not isfolder("nordhook/themes") then makefolder("nordhook/themes") end
+    if not isfolder("nordhook/sounds") then makefolder("nordhook/sounds") end
+    if not isfolder("nordhook/assets") then makefolder("nordhook/assets") end
 
     local Request = (syn and syn.request) or request
 
@@ -3502,27 +3502,27 @@ library.dropdown.objects.border_outer = library:create('outline', library.dropdo
 
 function library:CreateSettings(Window)
     local Tabs = {
-        ["Settings"] = Window:tab({text = "Settings", order = 999})
+        ["settings"] = Window:tab({text = "settings", order = 999})
     }
     local Sections = {
-        ["Settings"] = {
-            ["Main"] = Tabs.Settings:section({text = "Main", side = 2}),
-            ["Config"] = Tabs.Settings:section({text = "Config", side = 1}),
-            ["Theme"] = Tabs.Settings:section({text = "Theme", side = 1})
+        ["settings"] = {
+            ["main"] = Tabs["settings"]:section({text = "main", side = 2}),
+            ["config"] = Tabs["settings"]:section({text = "config", side = 1}),
+            ["theme"] = Tabs["settings"]:section({text = "theme", side = 1})
         },
     }
 
-    Sections["Settings"]["Main"]:keybind({text = "Menu Key", flag = "menubind", default = Enum.KeyCode.End, callback = function(bool)
+    Sections["settings"]["main"]:keybind({text = "menu key", flag = "menubind", default = Enum.KeyCode.End, callback = function(bool)
         library.menu:set_open(bool, 0.1)
     end})
-    Sections["Settings"]["Main"]:button({ text = "Rejoin Server", callback = function()
+    Sections["settings"]["main"]:button({ text = "rejoin server", callback = function()
         game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
     end})
-    Sections["Settings"]["Main"]:button({ text = "Copy JS Invite", callback = function()
+    Sections["settings"]["main"]:button({ text = "copy js invite", callback = function()
         setclipboard("Roblox.GameLauncher.joinGameInstance(" .. game.PlaceId .. ", \"" .. game.JobId .. "\")")
         library:notification("Invite set to clipboard", 3)
     end})
-    Sections["Settings"]["Main"]:button({text = "Join Discord", callback = function()
+    Sections["settings"]["main"]:button({text = "join discord", callback = function()
         local res = syn.request({
             Url = "http://127.0.0.1:6463/rpc?v=1",
             Method = "POST",
@@ -3544,43 +3544,43 @@ function library:CreateSettings(Window)
             library:notification("Joined the " .. library.cheatname .. " discord", 3);
         end
     end})
-    Sections["Settings"]["Main"]:button({text = "Copy Discord", callback = function()
+    Sections["settings"]["main"]:button({text = "copy discord", callback = function()
         setclipboard("https://discord.gg/DrZvb5SBC7/")
     end})
-    Sections["Settings"]["Main"]:button({text = "Unload", callback = function()
+    Sections["settings"]["main"]:button({text = "unload", callback = function()
         library:unload()
     end})
     
     
-    Sections["Settings"]["Main"]:separator({text = "Keybinds", enabled = true})
-    Sections["Settings"]["Main"]:toggle({text = "Keybind Indicator", flag = "keybind_indicator_enabled", callback = function(bool)
+    Sections["settings"]["main"]:separator({text = "keybinds", enabled = true})
+    Sections["settings"]["main"]:toggle({text = "keybind indicator", flag = "keybind_indicator_enabled", callback = function(bool)
         library.keybind_indicator:set_enabled(bool)
     end})
-    Sections["Settings"]["Main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "Position X", flag = "keybind_indicator_x", enabled = true, callback = function(value)
+    Sections["settings"]["main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "Position X", flag = "keybind_indicator_x", enabled = true, callback = function(value)
         if library.flags.keybind_indicator_y then
             library.keybind_indicator.set_position(UDim2.new(library.flags.keybind_indicator_x / 100, 0, library.flags.keybind_indicator_y / 100, 0))
         end
     end})
-    Sections["Settings"]["Main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "Position Y", flag = "keybind_indicator_y", enabled = true, callback = function(value)
+    Sections["settings"]["main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "Position Y", flag = "keybind_indicator_y", enabled = true, callback = function(value)
         library.keybind_indicator.set_position(UDim2.new(library.flags.keybind_indicator_x / 100, 0, library.flags.keybind_indicator_y / 100, 0))
     end})
     library.keybind_indicator.set_position(UDim2.new(0, 10, -12 / 100, 450))
     
     
-    Sections["Settings"]["Main"]:separator({text = "Watermark", enabled = true})
-    Sections["Settings"]["Main"]:toggle({text = "Watermark", flag = "watermark_enabled", state = true, callback = function(bool)
+    Sections["settings"]["main"]:separator({text = "Watermark", enabled = true})
+    Sections["settings"]["main"]:toggle({text = "Watermark", flag = "watermark_enabled", state = true, callback = function(bool)
         library.watermark.set_enabled(bool)
     end})
-    Sections["Settings"]["Main"]:dropdown({text = "Position", flag = "watermark_position", selected = "Top", values = {"Top Right", "Top Left", "Bottom Right", "Bottom Left", "Top"}, callback = function(value)
+    Sections["settings"]["main"]:dropdown({text = "Position", flag = "watermark_position", selected = "Top", values = {"Top Right", "Top Left", "Bottom Right", "Bottom Left", "Top"}, callback = function(value)
         library.watermark.set_lock(value)
     end})
-    Sections["Settings"]["Main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "Custom X", flag = "watermark_x", enabled = true, callback = function(value)
+    Sections["settings"]["main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "Custom X", flag = "watermark_x", enabled = true, callback = function(value)
         if library.flags.watermark_y and not library.LoadingConfig then
             library.watermark.position = UDim2.new(library.flags.watermark_x / 100, 0, library.flags.watermark_y / 100, 0)
             library.watermark.objects.background.Position = UDim2.new(library.flags.watermark_x / 100, 0, library.flags.watermark_y / 100, 0)
         end
     end})
-    Sections["Settings"]["Main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "Custom Y", flag = "watermark_y", enabled = true, callback = function(value)
+    Sections["settings"]["main"]:slider({default = 0, min = 0, max = 100, increment = 0.1, text = "Custom Y", flag = "watermark_y", enabled = true, callback = function(value)
         if not library.LoadingConfig then
             library.watermark.position = UDim2.new(library.flags.watermark_x / 100, 0, library.flags.watermark_y / 100, 0)
             library.watermark.objects.background.Position = UDim2.new(library.flags.watermark_x / 100, 0, library.flags.watermark_y / 100, 0)
@@ -3589,9 +3589,9 @@ function library:CreateSettings(Window)
     local pos = library.watermark.set_lock("Top")
     
     
-    Sections["Settings"]["Config"]:dropdown({text = "Configs", flag = "Config_Selected"})
-    Sections["Settings"]["Config"]:textbox({text = "Config Name", flag = "Config_Name"})
-    Sections["Settings"]["Config"]:button({text = "Create", confirm = true, callback = function()
+    Sections["settings"]["config"]:dropdown({text = "Configs", flag = "Config_Selected"})
+    Sections["settings"]["config"]:textbox({text = "Config Name", flag = "Config_Name"})
+    Sections["settings"]["config"]:button({text = "Create", confirm = true, callback = function()
         xpcall(function()
             library:save_config(library.flags.Config_Name, true)
             library:notification(("Successfully created config '%s'"):format(library.flags.Config_Name), 5, Color3.new(0.35, 1, 0.35))
@@ -3599,7 +3599,7 @@ function library:CreateSettings(Window)
             library:notification(err or ("Unable to create config '%s'"):format(library.flags.Config_Name), 5, Color3.new(1, 0.35, 0.35))
         end)
     end})
-    Sections["Settings"]["Config"]:button({text = "Save", confirm = true, callback = function()
+    Sections["settings"]["config"]:button({text = "Save", confirm = true, callback = function()
         xpcall(function()
             if library.flags.Config_Selected ~= "" or library.flags.Config_Selected ~= "none" then
                 library:save_config(library.flags.Config_Selected)
@@ -3609,7 +3609,7 @@ function library:CreateSettings(Window)
             library:notification(err or ("Unable to save config '%s'"):format(library.flags.Config_Selected), 5, Color3.new(1, 0.35, 0.35))
         end)
     end})
-    Sections["Settings"]["Config"]:button({text = "Load", confirm = true, callback = function()
+    Sections["settings"]["config"]:button({text = "Load", confirm = true, callback = function()
         xpcall(function()
             library:load_config(library.flags.Config_Selected)
             library:notification(("Successfully loaded config '%s'"):format(library.flags.Config_Selected), 5, Color3.new(0.35, 1, 0.35))
@@ -3617,7 +3617,7 @@ function library:CreateSettings(Window)
             library:notification(err or ("Unable to load config '%s'"):format(library.flags.Config_Selected), 5, Color3.new(1, 0.35, 0.35))
         end)
     end})
-    Sections["Settings"]["Config"]:button({text = "Set as Auto Load Config", confirm = true, callback = function()
+    Sections["settings"]["config"]:button({text = "Set as Auto Load Config", confirm = true, callback = function()
         xpcall(function()
             if library.options.autoload_cfg and library.flags.Config_Selected ~= "" or library.flags.Config_Selected ~= "none" then
                 writefile(library.cheatname .. "/configs/autoload.txt", library.flags.Config_Selected)
@@ -3633,7 +3633,7 @@ function library:CreateSettings(Window)
     if isfile(library.cheatname .. "/configs/autoload.txt") then
         configname = readfile(library.cheatname .. "/configs/autoload.txt")
     end
-    Sections["Settings"]["Config"]:label({text = "Auto Load: " .. configname, flag = "autoload_cfg"})
+    Sections["settings"]["config"]:label({text = "Auto Load: " .. configname, flag = "autoload_cfg"})
 
     if isfolder(library.cheatname .. "/configs") then
         for i,v in next, listfiles(library.cheatname .. "/configs") do
@@ -3645,37 +3645,37 @@ function library:CreateSettings(Window)
     end
     
     
-    Sections["Settings"]["Theme"]:colorpicker({text = 'Accent Color', flag = 'theme_accent', default = library.themes.default.Accent, callback = function(color)
+    Sections["settings"]["theme"]:colorpicker({text = 'Accent Color', flag = 'theme_accent', default = library.themes.default.Accent, callback = function(color)
         library.theme.Accent = color
         library:update_theme()
     end})
-    Sections["Settings"]["Theme"]:colorpicker({text = 'Background Color', flag = 'theme_background', default = library.themes.default.Background, callback = function(color)
+    Sections["settings"]["theme"]:colorpicker({text = 'Background Color', flag = 'theme_background', default = library.themes.default.Background, callback = function(color)
         library.theme.Background = color
         library:update_theme()
     end})
-    Sections["Settings"]["Theme"]:colorpicker({text = 'Section Background Color', flag = 'theme_sectionbordercolor', default = library.themes.default["Section Background"], callback = function(color)
+    Sections["settings"]["theme"]:colorpicker({text = 'Section Background Color', flag = 'theme_sectionbordercolor', default = library.themes.default["Section Background"], callback = function(color)
         library.theme["Section Background"] = color
         library:update_theme()
     end})
-    Sections["Settings"]["Theme"]:colorpicker({text = 'Border 1 Color', flag = 'theme_bordercolor', default = library.themes.default.Border, callback = function(color)
+    Sections["settings"]["theme"]:colorpicker({text = 'Border 1 Color', flag = 'theme_bordercolor', default = library.themes.default.Border, callback = function(color)
         library.theme.Border = color
         library:update_theme()
     end})
-    Sections["Settings"]["Theme"]:colorpicker({text = 'Border 2 Color', flag = 'theme_bordercolor2', default = library.themes.default["Border 1"], callback = function(color)
+    Sections["settings"]["theme"]:colorpicker({text = 'Border 2 Color', flag = 'theme_bordercolor2', default = library.themes.default["Border 1"], callback = function(color)
         library.theme["Border 1"] = color
         library:update_theme()
     end})
-    Sections["Settings"]["Theme"]:colorpicker({text = 'Border 3 Color', flag = 'theme_bordercolor3', default = library.themes.default["Border 2"], callback = function(color)
+    Sections["settings"]["theme"]:colorpicker({text = 'Border 3 Color', flag = 'theme_bordercolor3', default = library.themes.default["Border 2"], callback = function(color)
         library.theme["Border 2"] = color
         library:update_theme()
     end})
-    Sections["Settings"]["Theme"]:colorpicker({text = 'Border 4 Color', flag = 'theme_bordercolor4', default = library.themes.default["Border 3"], callback = function(color)
+    Sections["settings"]["theme"]:colorpicker({text = 'Border 4 Color', flag = 'theme_bordercolor4', default = library.themes.default["Border 3"], callback = function(color)
         library.theme["Border 3"] = color
         library:update_theme()
     end})
-    Sections["Settings"]["Theme"]:dropdown({text = "Themes", flag = "Theme_Selected"})
-    Sections["Settings"]["Theme"]:textbox({text = "Theme Name", flag = "Theme_Name"})
-    Sections["Settings"]["Theme"]:button({text = "Create", confirm = true, callback = function()
+    Sections["settings"]["theme"]:dropdown({text = "Themes", flag = "Theme_Selected"})
+    Sections["settings"]["theme"]:textbox({text = "Theme Name", flag = "Theme_Name"})
+    Sections["settings"]["theme"]:button({text = "Create", confirm = true, callback = function()
         xpcall(function()
             library:save_theme(library.flags.Theme_Name, true)
             library:notification(("Successfully created theme '%s'"):format(library.flags.Theme_Name), 5, Color3.new(0.35, 1, 0.35))
@@ -3683,7 +3683,7 @@ function library:CreateSettings(Window)
             library:notification(err or ("Unable to create theme '%s'"):format(library.flags.Theme_Name), 5, Color3.new(1, 0.35, 0.35))
         end)
     end})
-    Sections["Settings"]["Theme"]:button({text = "Save", confirm = true, callback = function()
+    Sections["settings"]["theme"]:button({text = "Save", confirm = true, callback = function()
         if tostring(library.flags.Theme_Selected) == "none" then return end
         xpcall(function()
             library:save_theme(library.flags.Theme_Selected)
@@ -3692,7 +3692,7 @@ function library:CreateSettings(Window)
             library:notification(err or ("Unable to save theme '%s'"):format(library.flags.Theme_Selected), 5, Color3.new(1, 0.35, 0.35))
         end)
     end})
-    Sections["Settings"]["Theme"]:button({text = "Load", confirm = true, callback = function()
+    Sections["settings"]["theme"]:button({text = "Load", confirm = true, callback = function()
         xpcall(function()
             library:load_theme(library.flags.Theme_Selected)
             library:notification(("Successfully loaded theme '%s'"):format(library.flags.Theme_Selected), 5, Color3.new(0.35, 1, 0.35))
@@ -3700,7 +3700,7 @@ function library:CreateSettings(Window)
             library:notification(err or ("Unable to load theme '%s'"):format(library.flags.Theme_Selected), 5, Color3.new(1, 0.35, 0.35))
         end)
     end})
-    Sections["Settings"]["Theme"]:button({text = "Set as Auto Load Theme", confirm = true, callback = function()
+    Sections["settings"]["theme"]:button({text = "Set as Auto Load Theme", confirm = true, callback = function()
         xpcall(function()
             if library.options.autoload_theme and library.flags.Theme_Selected ~= "" or library.flags.Theme_Selected ~= "none" then
                 writefile(library.cheatname .. "/themes/autoload.txt", library.flags.Theme_Selected)
@@ -3715,7 +3715,7 @@ function library:CreateSettings(Window)
     if isfile(library.cheatname .. "/themes/autoload.txt") then
         themename = readfile(library.cheatname .. "/themes/autoload.txt")
     end
-    Sections["Settings"]["Theme"]:label({text = "Auto Load: " .. themename, flag = "autoload_theme"})
+    Sections["settings"]["theme"]:label({text = "Auto Load: " .. themename, flag = "autoload_theme"})
     if isfolder(library.cheatname .. "/themes") then
         for i,v in next, listfiles(library.cheatname .. "/themes") do
             local ext = "."..v:split(".")[#v:split(".")]
@@ -3729,7 +3729,7 @@ function library:CreateSettings(Window)
     library:LoadAutoloadConfig()
     library:LoadAutoloadTheme()
 
-    return Tabs.Settings, Sections, Sections["Settings"]
+    return Tabs.Settings, Sections, Sections["settings"]
 end
 
 
