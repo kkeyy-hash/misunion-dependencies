@@ -31,6 +31,7 @@ do
     end
 end
 getgenv().userData = getgenv().userData and getgenv().userData or {uid = "1"}
+getgenv().scriptData = getgenv().scriptData and getgenv().scriptData or {build = "developer"}
 
 -- // load
 local startup_args = ({...})[1] or {}
@@ -3056,8 +3057,9 @@ do
         watermark.objects = {}
         watermark.text = properties.text or {
             'nordhook.cc',
-            library.gamename,
             "uid " .. tostring(userData.uid),
+            scriptData.build .. " build",
+            library.gamename,
             '999ms',
             '999 fps'
         }
@@ -3094,8 +3096,8 @@ do
             if tick() - watermark.lastupdate > 0.1 and watermark.enabled then
                 watermark.lastupdate = tick()
 
-                watermark.text[4] = tostring(math_floor(library.stat.ping)) .. 'ms'
-                watermark.text[5] = tostring(math_floor(library.stat.fps)) .. ' fps'
+                watermark.text[5] = tostring(math_floor(library.stat.ping)) .. 'ms'
+                watermark.text[6] = tostring(math_floor(library.stat.fps)) .. ' fps'
 
                 watermark.objects.label.Text = table_concat(watermark.text, ' / ')
                 watermark.objects.background.Size = udim2_new(0, watermark.objects.label.TextBounds.X + 10, 0, 18) 
@@ -3474,7 +3476,7 @@ end
 
 -- // finish
 library.keybind_indicator = library:create('indicator', {title = 'Keybinds', position = udim2_new(0,10,0,450), enabled = false})
-library.watermark = library:create('watermark', {text = {"nordhook.cc", library.gamename, "uid " .. tostring(userData.uid), "999ms", "999 fps"}, enabled = true})
+library.watermark = library:create('watermark', {text = {"nordhook.cc", "uid " .. tostring(userData.uid), scriptData.build .. " build", library.gamename, "999ms", "999 fps"}, enabled = true})
 library.colorpicker = library:create('colorpicker', {})
 library.dropdown = {selected = nil, objects = {values = {}}, connections = {}}
 
@@ -3586,7 +3588,7 @@ function library:CreateSettings(Window)
             library.watermark.objects.background.Position = UDim2.new(library.flags.watermark_x / 100, 0, library.flags.watermark_y / 100, 0)
         end
     end})
-    local pos = library.watermark.set_lock("Top")
+    local pos = library.watermark.set_lock("top")
     
     
     Sections["settings"]["config"]:dropdown({text = "configs", flag = "Config_Selected"})
@@ -3720,7 +3722,7 @@ function library:CreateSettings(Window)
         for i,v in next, listfiles(library.cheatname .. "/themes") do
             local ext = "."..v:split(".")[#v:split(".")]
             
-            if ext == ".ms" then
+            if ext == ".nh" then
                 library.options.Theme_Selected:add_value(v:split("\\")[#v:split("\\")]:sub(1,-#ext-1))
             end
         end
