@@ -40,7 +40,7 @@ end
 
 local themes = {
     ['default'] = {
-        ['Accent']              = Color3.fromRGB(185, 77, 255),
+        ['Accent']              = Color3.fromRGB(111, 162, 255),
         ['Background']          = Color3.fromRGB(15,15,20),
         ['Border']              = Color3.fromRGB(0,0,0),
         ['Border 1']            = Color3.fromRGB(10,10,15),
@@ -432,9 +432,9 @@ do
 
     -- configs
     function library:delete_config(config)
-        local path = library.cheatname .. '/configs/' .. tostring(config) .. '.ms'
+        local path = library.cheatname .. '/configs/' .. tostring(config) .. '.nh'
         if not isfile(path) then
-            assert(isfile(path), ("Unable to delete config '%s' [invalid config]"):format(tostring(config)))
+            assert(isfile(path), ("unable to delete config '%s' [invalid config]"):format(tostring(config)))
         end
 
         if table_find(options.Config_Selected.values, tostring(config)) then
@@ -445,7 +445,7 @@ do
     function library:load_config(config)
         library.LoadingConfig = true
         if typeof(config) == 'string' then
-            local path = library.cheatname .. '/configs/' .. config .. '.ms'
+            local path = library.cheatname .. '/configs/' .. config .. '.nh'
             assert(isfile(path), ("unable to load config '%s' [invalid config]"):format(tostring(config)))
             config = http:JSONDecode(readfile(path))
         end
@@ -489,9 +489,9 @@ do
     end
 
     function library:save_config(name, existscheck)
-        local path = library.cheatname .. '/configs/' .. name .. '.ms'
+        local path = library.cheatname .. '/configs/' .. name .. '.nh'
         if existscheck then
-            assert(isfile(path) == false, ("Unable to create config '%s' [already exists]"):format(name))
+            assert(isfile(path) == false, ("unable to create config '%s' [already exists]"):format(name))
         end
         if not table_find(options.Config_Selected.values, name) then
             options.Config_Selected:add_value(name)
@@ -526,19 +526,19 @@ do
 
 			local success, err = library:load_config(name)
 			if success ~= nil and success == false then
-                return library:notification(string.format("Failed to load autoload config '%s' | %s", name or "ERROR", err or "ERROR"), 5)
+                return library:notification(string.format("failed to load autoload config '%s' | %s", name or "ERROR", err or "ERROR"), 5)
 			end
 
-			library:notification(string.format("Auto loaded config '%s'", name), 5)
+			library:notification(string.format("auto loaded config '%s'", name), 5)
 		end
 	end
 
 
     -- themes
     function library:delete_theme(theme)
-        local path = library.cheatname .. '/themes/' .. tostring(theme) .. '.ms'
+        local path = library.cheatname .. '/themes/' .. tostring(theme) .. '.nh'
         if not isfile(path) then
-            assert(isfile(path), ("Unable to delete theme '%s' [invalid theme]"):format(tostring(theme)))
+            assert(isfile(path), ("unable to delete theme '%s' [invalid theme]"):format(tostring(theme)))
         end
 
         if table_find(options.Theme_Selected.values, tostring(theme)) then
@@ -550,7 +550,7 @@ do
     local ColorNames = {"theme_accent", "theme_background", "theme_sectionbordercolor", "theme_bordercolor", "theme_bordercolor2", "theme_bordercolor3", "theme_bordercolor4", "autoload_theme"}
     function library:load_theme(theme)
         if typeof(theme) == 'string' then
-            local path = library.cheatname .. '/themes/' .. tostring(theme) .. '.ms'
+            local path = library.cheatname .. '/themes/' .. tostring(theme) .. '.nh'
             assert(isfile(path), ("unable to load theme '%s' [invalid theme]"):format(tostring(theme)))
             theme = http:JSONDecode(readfile(path))
         end
@@ -577,9 +577,9 @@ do
         end
     end
     function library:save_theme(name, existscheck)
-        local path = library.cheatname .. '/themes/' .. name .. '.ms'
+        local path = library.cheatname .. '/themes/' .. name .. '.nh'
         if existscheck then
-            assert(isfile(path) == false, ("Unable to create theme '%s' [already exists]"):format(name))
+            assert(isfile(path) == false, ("unable to create theme '%s' [already exists]"):format(name))
         end
         if not table_find(options.Theme_Selected.values, name) then
             options.Theme_Selected:add_value(name)
@@ -600,7 +600,7 @@ do
 
 			local success, err = library:load_theme(name)
 			if success ~= nil and success == false then
-                return library:notification(string.format("Failed to load autoload theme '%s' | %s", name or "ERROR", err or "ERROR"), 5)
+                return library:notification(string.format("failed to load autoload theme '%s' | %s", name or "ERROR", err or "ERROR"), 5)
 			end
 
 			library:notification(string.format("Auto loaded theme '%s'", name), 5)
@@ -3638,7 +3638,7 @@ function library:CreateSettings(Window)
     if isfolder(library.cheatname .. "/configs") then
         for i,v in next, listfiles(library.cheatname .. "/configs") do
             local ext = "."..v:split(".")[#v:split(".")];
-            if ext == ".ms" then
+            if ext == ".nh" then
                 library.options.Config_Selected:add_value(v:split("\\")[#v:split("\\")]:sub(1,-#ext-1))
             end
         end
