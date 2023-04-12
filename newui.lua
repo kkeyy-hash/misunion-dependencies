@@ -159,7 +159,7 @@ local signal  = library.signal
 local utility = library.utility
 local camera  = workspace.CurrentCamera
 
---local flags = library.flags
+local flags = library.flags
 local options = library.options
 
 local drawing_classes = {
