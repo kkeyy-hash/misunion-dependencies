@@ -172,9 +172,13 @@ local drawing_classes = {
 
 -- // initalizations
 do
+
     for i,v in next, startup_args do
         library[i] = v
     end
+
+    makefolder(library.cheatname .. '/' .. library.gamename)
+    makefolder(library.cheatname .. '/' .. library.gamename .. '/configs')
 
     library.mouse_strings = {
         [Enum.UserInputType.MouseButton1] = 'MB1',
@@ -427,21 +431,9 @@ do
     end
 
     -- configs
-    function library:delete_config(config)
-        local path = library.cheatname .. '/configs/' .. tostring(config) .. '.nh'
-        if not isfile(path) then
-            assert(isfile(path), ("unable to delete config '%s' [invalid config]"):format(tostring(config)))
-        end
-
-        if table_find(options.Config_Selected.values, tostring(config)) then
-            options.Config_Selected:remove_value(tostring(config))
-        end
-        delfile(path)
-    end
     function library:load_config(config)
-        library.LoadingConfig = true
         if typeof(config) == 'string' then
-            local path = library.cheatname .. '/configs/' .. config .. '.nh'
+            local path = library.cheatname .. '/' .. library.gamename .. '/configs/' .. config .. '.txt'
             assert(isfile(path), ("unable to load config '%s' [invalid config]"):format(tostring(config)))
             config = http:JSONDecode(readfile(path))
         end
@@ -466,31 +458,27 @@ do
                     end
                 elseif option.class == 'dropdown' then
                     option:select(value)
-                    if flag == "watermark_position" then
-                        local pos = library.watermark.set_lock(value)
-                    end
                 elseif option.class == 'textbox' then
                     option:set_text(option.text)
                 elseif option.class == 'keybind' then
                     option:set_bind(utility.table.includes(Enum.KeyCode, value) and Enum.KeyCode[value] or utility.table.includes(Enum.UserInputType, value) and Enum.UserInputType[value])
-                elseif option.class == "label" then
-                    option:set_text(option.text)
                 end
             end, function(err)
                 library:notification(("unable to set '%s' to '%s' [%s]"):format(flag, typeof(value), tostring(err)), 5)
             end)
         end
-
-        library.LoadingConfig = false
     end
 
     function library:save_config(name, existscheck)
-        local path = library.cheatname .. '/configs/' .. name .. '.nh'
+
+        local path = library.cheatname .. '/' .. library.gamename .. '/configs/' .. name .. '.txt'
+        
         if existscheck then
             assert(isfile(path) == false, ("unable to create config '%s' [already exists]"):format(name))
         end
-        if not table_find(options.Config_Selected.values, name) then
-            options.Config_Selected:add_value(name)
+
+        if not table_find(options.configs_selected.values, name) then
+            options.configs_selected:add_value(name)
         end
 
         local config = {}
@@ -509,99 +497,12 @@ do
                 config[flag] = option.selected
             elseif option.class == 'textbox' then
                 config[flag] = option.text
-            elseif option.class == 'label' and not flag == "autoload_cfg" and not flag == "autoload_theme" then
-                config[flag] = option.text
             end
         end
 
         writefile(path, http:JSONEncode(config))
+
     end
-    function library:LoadAutoloadConfig()
-		if isfile(library.cheatname .. "/configs/autoload.txt") then
-			local name = readfile(library.cheatname .. "/configs/autoload.txt")
-
-			local success, err = library:load_config(name)
-			if success ~= nil and success == false then
-                return library:notification(string.format("failed to load autoload config '%s' | %s", name or "ERROR", err or "ERROR"), 5)
-			end
-
-			library:notification(string.format("auto loaded config '%s'", name), 5)
-		end
-	end
-
-
-    -- themes
-    function library:delete_theme(theme)
-        local path = library.cheatname .. '/themes/' .. tostring(theme) .. '.nh'
-        if not isfile(path) then
-            assert(isfile(path), ("unable to delete theme '%s' [invalid theme]"):format(tostring(theme)))
-        end
-
-        if table_find(options.Theme_Selected.values, tostring(theme)) then
-            options.Theme_Selected:remove_value(tostring(theme))
-        end
-        delfile(path)
-    end
-
-    local ColorNames = {"theme_accent", "theme_background", "theme_sectionbordercolor", "theme_bordercolor", "theme_bordercolor2", "theme_bordercolor3", "theme_bordercolor4", "autoload_theme"}
-    function library:load_theme(theme)
-        if typeof(theme) == 'string' then
-            local path = library.cheatname .. '/themes/' .. tostring(theme) .. '.nh'
-            assert(isfile(path), ("unable to load theme '%s' [invalid theme]"):format(tostring(theme)))
-            theme = http:JSONDecode(readfile(path))
-        end
-
-        for flag, value in next, theme do
-            xpcall(function()
-                local option = library.options[flag]
-                assert(option ~= nil, 'invalid option')
-
-                if option.class == 'colorpicker' and table.find(ColorNames, flag) then
-                    local split = value:split('_')
-                    option:set(Color3.fromHex(split[1]), tonumber(split[2]))
-                    option.useaccent = split[3] == 'true'
-                    option.rainbow = split[4] == 'true'
-                    if split[4] == 'true' then
-                        table.insert(library.rainbows, option)
-                    end
-                elseif options.class == "label" and table.find(ColorNames, flag) then
-                    option:set_text(option.text)
-                end
-            end, function(err)
-                library:notification(("unable to set '%s' to '%s' [%s]"):format(flag, typeof(value), tostring(err)), 5)
-            end)
-        end
-    end
-    function library:save_theme(name, existscheck)
-        local path = library.cheatname .. '/themes/' .. name .. '.nh'
-        if existscheck then
-            assert(isfile(path) == false, ("unable to create theme '%s' [already exists]"):format(name))
-        end
-        if not table_find(options.Theme_Selected.values, name) then
-            options.Theme_Selected:add_value(name)
-        end
-
-        local theme = {}
-        for flag, option in next, library.options do
-            if option.class == 'colorpicker' and table.find(ColorNames, flag) then
-                theme[flag] = tostring(option.color:ToHex())
-            end
-        end
-
-        writefile(path, http:JSONEncode(theme))
-    end
-    function library:LoadAutoloadTheme()
-		if isfile(library.cheatname .. "/themes/autoload.txt") then
-			local name = readfile(library.cheatname .. "/themes/autoload.txt")
-
-			local success, err = library:load_theme(name)
-			if success ~= nil and success == false then
-                return library:notification(string.format("failed to load autoload theme '%s' | %s", name or "ERROR", err or "ERROR"), 5)
-			end
-
-			library:notification(string.format("Auto loaded theme '%s'", name), 5)
-		end
-	end
 
 
     -- util
@@ -3043,12 +2944,13 @@ do
     library:define('watermark', function(properties)
         local watermark = {}
         watermark.lastupdate = 0
-        watermark.enabled = false
+        watermark.enabled = properties.enabled or false
         watermark.objects = {}
         watermark.text = properties.text or {
-            'hyphon.cc',
-            'liamm#0223',
-            'uid 1',
+            'nordhook.cc',
+            "uid " .. tostring(userData.uid),
+            scriptData.build .. " build",
+            library.gamename,
             '999ms',
             '999 fps'
         }
@@ -3085,14 +2987,34 @@ do
             if tick() - watermark.lastupdate > 0.1 and watermark.enabled then
                 watermark.lastupdate = tick()
 
-                watermark.text[4] = tostring(math_floor(library.stat.ping)) .. 'ms'
-                watermark.text[5] = tostring(math_floor(library.stat.fps)) .. ' fps'
+                watermark.text[5] = tostring(math_floor(library.stat.ping)) .. 'ms'
+                watermark.text[6] = tostring(math_floor(library.stat.fps)) .. ' fps'
 
                 watermark.objects.label.Text = table_concat(watermark.text, ' / ')
                 watermark.objects.background.Size = udim2_new(0, watermark.objects.label.TextBounds.X + 10, 0, 18) 
             end
         end)
 
+        watermark.set_enabled = function(bool)
+            if (watermark.enabled and not bool) or (not watermark.enabled and bool) then
+                watermark.objects.background.Visible = bool
+                watermark.enabled = bool
+            end
+        end
+
+        local size = watermark.objects.background.Size;
+        local screensize = workspace.CurrentCamera.ViewportSize;
+        watermark.set_lock = function(lock)
+            local newpos = lock == 'top right' and udim2_new(0, screensize.X - size.X.Offset - 370, 0, 15) or
+            lock == 'top left' and udim2_new(0, 15, 0, 15) or
+            lock == 'bottom right' and udim2_new(0, screensize.X - size.X.Offset - 370, 0, screensize.Y - size.Y.Offset - 25) or
+            lock == 'bottom left' and udim2_new(0, 15, 0, screensize.Y - size.Y.Offset - 25) or
+            lock == 'top' and udim2_new(0, screensize.X / 2.65 - size.X.Offset / 3, 0, 15)
+            watermark.position = newpos
+            watermark.objects.background.Position = newpos
+
+            return newpos
+        end
 
         return watermark
     end)
@@ -3129,6 +3051,12 @@ do
         indicator.objects.border_inner = library:create('outline', indicator.objects.background, {Theme = {['Color'] = 'Border 3'}})
         indicator.objects.border_outer = library:create('outline', indicator.objects.border_inner, {Theme = {['Color'] = 'Border'}})
 
+        indicator.set_position = function(udim2)
+            if typeof(udim2) == 'UDim2' then
+                indicator.position = udim2
+                indicator.objects.background.Position = udim2
+            end
+        end
         indicator:set_enabled(properties.enabled == nil and true or properties.enabled)
         indicator:update()
         return indicator
@@ -3439,6 +3367,7 @@ end
 
 -- // finish
 library.keybind_indicator = library:create('indicator', {title = 'keybinds', position = udim2_new(0,10,0,450), enabled = false})
+library.watermark = library:create('watermark', {text = {"nordhook.cc", "uid " .. tostring(userData.uid), scriptData.build .. " build", library.gamename, "999ms", "999 fps"}, enabled = true})
 library.colorpicker = library:create('colorpicker', {})
 library.dropdown = {selected = nil, objects = {values = {}}, connections = {}}
 

@@ -1572,7 +1572,7 @@ do
             dropdown.searching = false
             dropdown.maxvalues = 10
             dropdown.values = {}
-            dropdown.selected = properties.multi and {} or properties.selected and properties.selected or 'none'
+            dropdown.selected = properties.multi and {} or ''
 
             for i,v in next, properties.values or {} do
                 dropdown:add_value(v)
@@ -1590,7 +1590,7 @@ do
             dropdown.objects.status_text = library:create('text', {
                 Theme = {['Color'] = 'Option Text 2'},
                 Position = udim2_new(0,1,0,-3),
-                Text = dropdown.selected,
+                Text = 'none',
                 Center = dropdown.center or false,
                 ZIndex = dropdown.zindex + 5,
                 Parent = dropdown.objects.background,
@@ -1631,7 +1631,6 @@ do
                     library.dropdown.selected = dropdown
                     library.dropdown.objects.background.Parent = dropdown.objects.container
                     library.dropdown.objects.background.Visible = true
-                    dropdown:update_text()
                     dropdown:update()
 
                     if inputservice:IsKeyDown(Enum.KeyCode.LeftControl) then
@@ -1661,7 +1660,7 @@ do
                             end
         
                             dropdown:update()
-                            dropdown:update_text()
+        
                         end)
         
                     end
@@ -1756,7 +1755,6 @@ do
                     library.dropdown.objects.values[index] = library:create('dropdownvalue', library.dropdown.objects.background)
                 end
             end
-            
 
             local index = 1
 
