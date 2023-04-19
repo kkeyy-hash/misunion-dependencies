@@ -427,17 +427,6 @@ do
     getgenv().scriptData = getgenv().scriptData and getgenv().scriptData or {build = "developer"}
 
     -- configs
-    function library:delete_config(config)
-        local path = library.cheatname .. '/configs/' .. tostring(library.gamename) .. "/" .. tostring(config) .. '.json'
-        if not isfile(path) then
-            assert(isfile(path), ("unable to delete config '%s' [invalid config]"):format(tostring(config)))
-        end
-
-        if table_find(options.Config_Selected.values, tostring(config)) then
-            options.Config_Selected:remove_value(tostring(config))
-        end
-        delfile(path)
-    end
     function library:load_config(config)
         library.LoadingConfig = true
         if typeof(config) == 'string' then
@@ -538,18 +527,6 @@ do
 
 
     -- themes
-    function library:delete_theme(theme)
-        local path = library.cheatname .. '/themes/' .. tostring(theme) .. '.json'
-        if not isfile(path) then
-            assert(isfile(path), ("unable to delete theme '%s' [invalid theme]"):format(tostring(theme)))
-        end
-
-        if table_find(options.Theme_Selected.values, tostring(theme)) then
-            options.Theme_Selected:remove_value(tostring(theme))
-        end
-        delfile(path)
-    end
-
     local ColorNames = {"theme_accent", "theme_background", "theme_sectionbordercolor", "theme_bordercolor", "theme_bordercolor2", "theme_bordercolor3", "theme_bordercolor4", "autoload_theme"}
     function library:load_theme(theme)
         if typeof(theme) == 'string' then
