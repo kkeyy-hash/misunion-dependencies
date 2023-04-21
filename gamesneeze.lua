@@ -1,19 +1,20 @@
 --> Creating Folders <--
 do
-    if not isfolder("NordHook") then makefolder("NordHook") end
-    if not isfolder("NordHook/Configs") then makefolder("NordHook/Configs") end
-    if not isfolder("NordHook/Themes") then makefolder("NordHook/Themes") end
-    if not isfolder("NordHook/Sounds") then makefolder("NordHook/Sounds") end
-    if not isfolder("NordHook/Assets") then makefolder("NordHook/Assets") end
+    if not isfolder("nordhook") then makefolder("nordhook") end
+    if not isfolder("nordhook/configs") then makefolder("nordhook/configs") end
+    if not isfolder("nordhook/themes") then makefolder("nordhook/themes") end
+    if not isfolder("nordhook/sounds") then makefolder("nordhook/sounds") end
+    if not isfolder("nordhook/assets") then makefolder("nordhook/assets") end
 
     local Request = (syn and syn.request) or request
 
     --> Sounds <--
     local Sounds = {"agpa2", "bubble", "bubble_2", "fatality", "neverlose", "skeet"}
     for Index, Name in next, Sounds do
-        if not isfile("NordHook/Sounds/" .. Name .. ".wav") then
-            writefile("NordHook/Sounds/" .. Name .. ".wav", Request({
-                Url = "https://github.com/kkeyy-hash/nordhook/blob/main/sounds/" .. Name .. ".wav?raw=true", 
+        local FixedName = Name .. ".wav"
+        if not isfile("nordhook/sounds/" .. FixedName) then
+            writefile("nordhook/sounds/" .. FixedName, Request({
+                Url = "https://raw.githubusercontent.com/kkeyy-hash/nordhook/main/sounds/" .. FixedName, 
                 Method = "GET"
             }).Body)
         end
@@ -22,9 +23,10 @@ do
     --> Assets <--
     local Assets = {"arrow_down", "arrow_up", "beam", "cptransp", "gradient", "gradientdown", "hue", "transp", "transp2", "valsat", "valsat_cursor"}
     for Index, Name in next, Assets do
-        if not isfile("NordHook/Assets/" .. Name .. ".png") then
-            writefile("NordHook/Assets/" .. Name .. ".png", Request({
-                Url = "https://github.com/kkeyy-hash/nordhook/blob/main/assets/" .. Name .. ".png?raw=true", 
+        local FixedName = Name .. ".png"
+        if not isfile("nordhook/assets/" .. FixedName) then
+            writefile("nordhook/assets/" .. FixedName, Request({
+                Url = "https://raw.githubusercontent.com/kkeyy-hash/nordhook/main/assets/" .. FixedName, 
                 Method = "GET"
             }).Body)
         end
@@ -32,6 +34,7 @@ do
 end
 getgenv().scriptData = getgenv().scriptData and getgenv().scriptData or {build = "dev"}
 getgenv().userData = getgenv().userData and getgenv().userData or {uid = "1"}
+getgenv().retrieveasset = retrieveasset or getcustomasset
 
 
 -- // Variables
@@ -76,10 +79,11 @@ local library = {
     colors = {},
     hovers = {},
     Relations = {},
+    custom = {},
     folders = {
-        main = "NordHook",
-        assets = "NordHook/Assets",
-        configs = "NordHook/Configs"
+        main = "nordhook",
+        assets = "nordhook/assets",
+        configs = "nordhook/configs"
     },
     shared = {
         initialized = false,
@@ -131,30 +135,6 @@ local theme = {
 -- // utility Functions
 do
     --
-    
-    --
-    function utility:tween(obj, properties)
-        local c_time = 0
-        local m_time = properties.Duration
-        
-        local s_size = properties.Start
-        local e_size = properties.End
-        
-        local conn
-        
-        conn = game:GetService('RunService').RenderStepped:Connect(function(delta)
-            pcall(function()
-                c_time = c_time + delta
-                obj.Size = s_size:Lerp(e_size, game.TweenService:GetValue(c_time / m_time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out))
-                if c_time > m_time then
-                    if properties.Callback then properties.Callback() end
-                    
-                    conn:Disconnect()
-                    conn = nil
-                end
-            end)
-        end)
-    end
     --
     function utility:Size(xScale,xOffset,yScale,yOffset,instance)
         if instance then
@@ -478,7 +458,9 @@ do
         end
         --
         if data and instance then
+            pcall(function()
             instance.Data = data
+            end)
         end
     end
     --
@@ -550,148 +532,12 @@ do
 end
 
 
-local x = workspace.CurrentCamera.ViewportSize.X - 1
-local y = workspace.CurrentCamera.ViewportSize.Y - 1
-function tween(obj, properties)
-    local c_time = 0
-    local m_time = properties.Duration
-    
-    local s_size = properties.Start
-    local e_size = properties.End
-    
-    local conn
-    
-    conn = game:GetService('RunService').RenderStepped:Connect(function(delta)
-        pcall(function()
-            c_time = c_time + delta
-            obj.Size = s_size:Lerp(e_size, game.TweenService:GetValue(c_time / m_time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out))
-            if c_time > m_time then
-                if properties.Callback then properties.Callback() end
-                
-                conn:Disconnect()
-                conn = nil
-            end
-        end)
-    end)
-end
-function create(name, properties)
-    local d = nil
-    
-    if name == 'Frame' or name == 'frame' then 
-        d = Drawing.new('Square')
-        d.Thickness = 0 
-    end
-    if name == 'Text' or name == 'text' then
-        d = Drawing.new('Text')
-        d.Center = true 
-        d.Font = 3
-    end
-    
-    for i,v in pairs(properties) do
-        d[i] = v
-    end
-    
-    return d
-end
-function notification(properties)
-    -- change values
-    y -= 55
-    
-    -- create elements
-    local outer = create('frame', {
-        Position = Vector2.new(x - 350, y),
-        Size = Vector2.new(350, 50),
-        Color = Color3.fromRGB(0, 0, 0),
-        Filled = true,
-        Visible = true
-    })
-    local inner_outline = create('frame', {
-        Position = Vector2.new(99999, 99999),
-        Size = Vector2.new(outer.Size.X - 2, outer.Size.Y - 2),
-        Color = theme.accent,
-        Filled = false,
-        Visible = true
-    })
-    local inner = create('frame', {
-        Position = Vector2.new(99999, 99999),
-        Size = Vector2.new(inner_outline.Size.X - 2, inner_outline.Size.Y - 2),
-        Color = Color3.fromRGB(30, 30, 30),
-        Filled = true,
-        Visible = true
-    })
-    local progress_bar = create('frame', {
-        Position = Vector2.new(99999, 99999),
-        Color = Color3.fromRGB(255, 255, 255),
-        Filled = true,
-        Visible = true
-    })
-    local title = create('text', {
-        Position = Vector2.new(99999, 99999),
-        Text = properties.Title,
-        Size = 15,
-        Color = theme.accent,
-        Visible = true
-    })
-    local text = create('text', {
-        Position = Vector2.new(99999, 99999),
-        Text = properties.Text,
-        Size = 14,
-        Color = Color3.fromRGB(255, 255, 255),
-        Visible = true
-    })
-    
-    -- functions
-    coroutine.wrap(function()
-        while wait() and outer.Position.Y ~= y - 50 do
-            outer.Position = Vector2.new(outer.Position.X, outer.Position.Y - 5)
-            inner_outline.Position = Vector2.new(outer.Position.X + 1, outer.Position.Y + 1)
-            inner.Position = Vector2.new(inner_outline.Position.X + 1, inner_outline.Position.Y + 1)
-            progress_bar.Position = Vector2.new(inner.Position.X + 5, inner.Position.Y + 2)
-            title.Position = Vector2.new(x - 175, outer.Position.Y + 5)
-            text.Position = Vector2.new(x - 175, outer.Position.Y + 30)
-        end
-    end)()
-    tween(progress_bar, {
-        Duration = properties.Duration,
-        
-        Start = Vector2.new(0, 1),
-        End = Vector2.new(334, 1),
-        
-        Callback = function()
-            coroutine.wrap(function()
-                while wait() and outer.Position.Y ~= y do
-                    outer.Position = Vector2.new(outer.Position.X, outer.Position.Y + 5)
-                    inner_outline.Position = Vector2.new(outer.Position.X + 1, outer.Position.Y + 1)
-                    inner.Position = Vector2.new(inner_outline.Position.X + 1, inner_outline.Position.Y + 1)
-                    progress_bar.Position = Vector2.new(inner.Position.X + 5, inner.Position.Y + 2)
-                    title.Position = Vector2.new(x - 175, outer.Position.Y + 5)
-                    text.Position = Vector2.new(x - 175, outer.Position.Y + 30)
-                end
-                
-                outer:Remove()
-                inner_outline:Remove()
-                inner:Remove()
-                progress_bar:Remove()
-                title:Remove()
-                text:Remove()
-                
-                y += 55
-            end)()
-        end
-    })
-end
-
-
 
 -- // Library Functions
 do
     library.__index = library
 	pages.__index = pages
 	sections.__index = sections
-    --
-    function library:Notification(info)
-        notification({Title = "NordHook" or info.Title or info.title, Text = info.Text or info.text, Duration = info.Duration or info.duration})
-    end
     --
     function library:Loader(info)
 		local info = info or {}
@@ -827,7 +673,7 @@ do
             if window.currentContent.dropdown and window.currentContent.dropdown.open then
                 local dropdown = window.currentContent.dropdown
                 dropdown.open = not dropdown.open
-                utility:LoadImage(dropdown.dropdown_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                utility:LoadImage(dropdown.dropdown_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                 --
                 for i,v in pairs(dropdown.holder.drawings) do
                     utility:Remove(v)
@@ -842,7 +688,7 @@ do
             elseif window.currentContent.multibox and window.currentContent.multibox.open then
                 local multibox = window.currentContent.multibox
                 multibox.open = not multibox.open
-                utility:LoadImage(multibox.multibox_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                utility:LoadImage(multibox.multibox_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                 --
                 for i,v in pairs(multibox.holder.drawings) do
                     utility:Remove(v)
@@ -955,6 +801,10 @@ do
             library.colors = {}
             --
             uis.MouseIconEnabled = true
+            --
+            if identifyexecutor() == "ScriptWare" then
+                cleardrawcache()
+            end
         end
         --
         function window:Cursor(info)
@@ -983,18 +833,6 @@ do
             library.colors[cursor_inline] = {
                 Color = "accent"
             }
-            --
-            utility:Connection(rs.RenderStepped, function()
-                local mouseLocation = utility:MouseLocation()
-                --
-                cursor.PointA = Vector2.new(mouseLocation.X, mouseLocation.Y)
-                cursor.PointB = Vector2.new(mouseLocation.X + 12, mouseLocation.Y + 4)
-                cursor.PointC = Vector2.new(mouseLocation.X + 4, mouseLocation.Y + 12)
-                --
-                cursor_inline.PointA = Vector2.new(mouseLocation.X, mouseLocation.Y)
-                cursor_inline.PointB = Vector2.new(mouseLocation.X + 12, mouseLocation.Y + 4)
-                cursor_inline.PointC = Vector2.new(mouseLocation.X + 4, mouseLocation.Y + 12)
-            end)
             --
             uis.MouseIconEnabled = false
             --
@@ -1111,52 +949,6 @@ do
                 window:Unload()
             end
         end
-        --
-        utility:Connection(uis.InputBegan,function(Input, Typing)
-            for _, func in pairs(library.began) do
-                if not window.dragging then
-                    local e,s = pcall(function()
-                        func(Input, Typing)
-                    end)
-                else
-                    break
-                end
-            end
-        end)
-        --
-        utility:Connection(uis.InputEnded,function(Input)
-            for _, func in pairs(library.ended) do
-                local e,s = pcall(function()
-                    func(Input)
-                end)
-            end
-        end)
-        --
-        utility:Connection(uis.InputChanged,function()
-            for _, func in pairs(library.changed) do
-                local e,s = pcall(function()
-                    func()
-                end)
-            end
-        end)
-        --
-        utility:Connection(rs.RenderStepped,function()
-            if window.currentContent.textbox and window.currentContent.textbox.Fire and window.currentContent.textbox.Backspace then
-                local Time = (tick() - window.currentContent.textbox.Backspace[1])
-                --
-                if Time > 0.4 then
-                    window.currentContent.textbox.Backspace[2] = window.currentContent.textbox.Backspace[2] + 1
-                    --
-                    if (window.currentContent.textbox.Backspace[2] % 5 == 0) then
-                        window.currentContent.textbox.Fire("Backspace")
-                    end
-                end
-            end
-        end)
-        --
-        utility:Connection(ws.CurrentCamera:GetPropertyChangedSignal("ViewportSize"),function()
-            window:Move(Vector2.new((utility:GetScreenSize().X/2) - (size.X/2), (utility:GetScreenSize().Y/2) - (size.Y/2)))
-        end)
         --
 		return setmetatable(window, library)
 	end
@@ -1301,7 +1093,7 @@ do
                 HealthBarFade = 0,
                 Fading = false,
                 State = false,
-                Visible = true,
+                Visible = false,
                 Drawings = {},
                 Components = {
                     Box = {
@@ -1454,7 +1246,6 @@ do
                 healthbar.Color = Color
                 healthbar.Size = utility:Size(1, -2, 0, Size, healthbaroutline)
                 healthbar.Position = utility:Position(0, 1, 1, -Size - 1, healthbaroutline)
-                window.VisualPreview:UpdateHealthValue(5)
                 utility:UpdateOffset(healthbar, {Vector2.new(1, healthbaroutline.Size.Y - Size - 1), healthbaroutline})
             end
             --
@@ -1502,10 +1293,20 @@ do
                 window.VisualPreview.Fading = false
             end
             --
-            function window.VisualPreview:SetComponentProperty(Component, Property, State, Index)
+            function window.VisualPreview:SetComponentProperty(Component, Property, State, Index, In)
                 for Index2, Value in pairs(window.VisualPreview.Components[Component]) do
-                    if Index then
-                        Value[Index][Property] = State
+                    
+                    if Index and Component == "Chams" then
+                        window.VisualPreview.Components[Component][Index][In][Property] = State
+                        --
+                        if Property == "Transparency" then
+                            utility:UpdateTransparency(Value[Index], State)
+                            if window.VisualPreview.Drawings[Value[Index]] then
+                                window.VisualPreview.Drawings[Value[Index]] = State
+                            end
+                        end
+                    elseif Index then
+                        window.VisualPreview.Components[Component][Index][Property] = State
                         --
                         if Property == "Transparency" then
                             utility:UpdateTransparency(Value[Index], State)
@@ -1550,7 +1351,7 @@ do
             --
             library.began[#library.began + 1] = function(Input)
                 if Input.UserInputType == Enum.UserInputType.MouseButton1 and esppreview_visiblebutton.Visible and window.isVisible and utility:MouseOverDrawing({esppreview_visiblebutton.Position.X, esppreview_visiblebutton.Position.Y, esppreview_visiblebutton.Position.X + esppreview_visiblebutton.TextBounds.X, esppreview_visiblebutton.Position.Y + esppreview_visiblebutton.TextBounds.Y}) and not window:IsOverContent() then
-                    window.VisualPreview.Visible = false
+                    window.VisualPreview.Visible = not window.VisualPreview.Visible
                     esppreview_visiblebutton.Text = window.VisualPreview.Visible and "O" or "0"
                 end
             end
@@ -1567,7 +1368,7 @@ do
                 local preview_box = utility:Create("Frame", {Vector2.new(0, 0), preview_boxoutline}, {
                     Size = utility:Size(1, 0, 1, 0, preview_boxoutline),
                     Position = utility:Position(0, 0, 0, 0, preview_boxoutline),
-                    Color = Color3.fromRGB(255, 255, 255),
+                    Color = Color3.fromRGB(112, 162, 255),
                     Filled = false,
                     Thickness = 0.6
                 }, window.VisualPreview.Drawings)
@@ -1582,7 +1383,7 @@ do
                 local preview_heatlhbar = utility:Create("Frame", {Vector2.new(1, 1), preview_heatlhbaroutline}, {
                     Size = utility:Size(1, -2, 1, -2, preview_heatlhbaroutline),
                     Position = utility:Position(0, 1, 0, 1, preview_heatlhbaroutline),
-                    Color = Color3.fromRGB(255, 0, 0),
+                    Color = Color3.fromRGB(0, 255, 0),
                     Filled = true
                 }, window.VisualPreview.Drawings);healthbar = preview_heatlhbar
                 --
@@ -1626,7 +1427,7 @@ do
                 do -- Chams
                     for Index = 1, 2 do
                         local transparency = Index == 1 and 0.75 or 0.5
-                        local color = Index == 1 and Color3.fromRGB(93, 62, 152) or Color3.fromRGB(255, 255, 255)
+                        local color = Index == 1 and Color3.fromRGB(112, 162, 255) or Color3.fromRGB(255, 255, 255)
                         --
                         local extrasize = Index == 1 and 4 or 0
                         local extraoffset = Index == 1 and -2 or 0
@@ -1680,6 +1481,8 @@ do
                         window.VisualPreview.Components.Chams["LeftLeg"][Index] = preview_character_leftleg
                         window.VisualPreview.Components.Chams["RightLeg"][Index] = preview_character_rightleg
                     end
+
+                    library.VisualPreview = window.VisualPreview
                 end
                 --
                 do -- Skeleton
@@ -1761,21 +1564,11 @@ do
                     Position = utility:Position(0, 1, 0, 1, preview_boxoutline),
                     Color = Color3.fromRGB(255, 255, 255),
                     Filled = true,
-                    Transparency = 0.9
-                }, window.VisualPreview.Drawings)
-                --
-                local preview_flags = utility:Create("TextLabel", {Vector2.new(preview_box.Size.X -56, 5), preview_box}, {
-                    Text = "Flags ->", --Display\nMoving\nJumping\nDesynced"
-                    Size = theme.textsize,
-                    Font = theme.font,
-                    Color = Color3.fromRGB(255, 255, 255),
-                    OutlineColor = theme.textborder,
-                    Center = false,
-                    Position = utility:Position(1, -56, 0, 5, preview_box)
+                    Transparency = 0
                 }, window.VisualPreview.Drawings)
                 --
                 local preview_healthbarvalue = utility:Create("TextLabel", {Vector2.new(0, 5), preview_heatlhbar}, {
-                    Text = "<- Number", --Display\nMoving\nJumping\nDesynced"
+                    Text = "<- Health", --Display\nMoving\nJumping\nDesynced"
                     Size = theme.textsize,
                     Font = theme.font,
                     Color = Color3.fromRGB(0, 255, 0),
@@ -1787,7 +1580,6 @@ do
                 window.VisualPreview.Components.Title["Text"] = preview_title
                 window.VisualPreview.Components.Distance["Text"] = preview_distance
                 window.VisualPreview.Components.Tool["Text"] = preview_tool
-                window.VisualPreview.Components.Flags["Text"] = preview_flags
                 window.VisualPreview.Components.Box["Outline"] = preview_boxoutline
                 window.VisualPreview.Components.Box["Box"] = preview_box
                 window.VisualPreview.Components.Box["Fill"] = preview_boxfill
@@ -1854,7 +1646,7 @@ do
             if window.currentContent.dropdown and window.currentContent.dropdown.open then
                 local dropdown = window.currentContent.dropdown
                 dropdown.open = not dropdown.open
-                utility:LoadImage(dropdown.dropdown_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                utility:LoadImage(dropdown.dropdown_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                 --
                 for i,v in pairs(dropdown.holder.drawings) do
                     utility:Remove(v)
@@ -1869,7 +1661,7 @@ do
             elseif window.currentContent.multibox and window.currentContent.multibox.open then
                 local multibox = window.currentContent.multibox
                 multibox.open = not multibox.open
-                utility:LoadImage(multibox.multibox_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                utility:LoadImage(multibox.multibox_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                 --
                 for i,v in pairs(multibox.holder.drawings) do
                     utility:Remove(v)
@@ -1985,6 +1777,10 @@ do
             library.changed = {}
             --
             uis.MouseIconEnabled = true
+            --
+            if identifyexecutor() == "ScriptWare" then
+                cleardrawcache()
+            end
         end
         --
         function window:Watermark(info)
@@ -2072,21 +1868,7 @@ do
                 watermark_accent.Size = utility:Size(1, 0, 0, 1, watermark_frame)
             end
             --
-            local Tick = tick()
-            local Build = getgenv().scriptData ~= nil and getgenv().scriptData.build or "dev"
-            local UID = getgenv().userData ~= nil and getgenv().userData.uid or "1"
-            --
-            utility:Connection(game.RunService.RenderStepped, function(delta)
-                library.shared.fps = 1 / delta
-                library.shared.ping = stats.Network.ServerStatsItem["Data Ping"]:GetValue()
-    
-                if tick() - Tick > 0.1 then
-                    Tick = tick()
-                    watermark_title.Text = "$$ nordhook $$ / " .. Build .. " / uid " .. UID .. " / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
-                    window.watermark:UpdateSize()
-                end
-            end)
-            --
+            library.custom.watermark_title = watermark_title
             --
             function window.watermark:Visibility()
                 watermark_outline.Visible = window.watermark.visible
@@ -2328,17 +2110,12 @@ do
                     window.keybindslist:Visibility()
                 end
             end
-    
             --
-            utility:Connection(ws.CurrentCamera:GetPropertyChangedSignal("ViewportSize"),function()
-                keybindslist_outline.Position = utility:Position(0, 10, 0.4, 0)
-                keybindslist_inline.Position = utility:Position(0, 1, 0, 1, keybindslist_outline)
-                keybindslist_frame.Position = utility:Position(0, 1, 0, 1, keybindslist_inline)
-                keybindslist_accent.Position = utility:Position(0, 0, 0, 0, keybindslist_frame)
-                keybindslist_title.Position = utility:Position(0.5, 0, 0, 5, keybindslist_outline)
-                --
-                window.keybindslist:Resort()
-            end)
+            library.custom.keybindslist_outline = keybindslist_outline
+            library.custom.keybindslist_inline = keybindslist_inline
+            library.custom.keybindslist_frame = keybindslist_frame
+            library.custom.keybindslist_accent = keybindslist_accent
+            library.custom.keybindslist_title = keybindslist_title
         end
         --
         function window:StatusList(info)
@@ -2546,28 +2323,11 @@ do
                 end
             end
             --
-            utility:Connection(ws.CurrentCamera:GetPropertyChangedSignal("ViewportSize"),function()
-                statuslist_outline.Position = utility:Position(1, -160, 0.4, 0)
-                statuslist_inline.Position = utility:Position(0, 1, 0, 1, statuslist_outline)
-                statuslist_frame.Position = utility:Position(0, 1, 0, 1, statuslist_inline)
-                statuslist_accent.Position = utility:Position(0, 0, 0, 0, statuslist_frame)
-                statuslist_title.Position = utility:Position(0.5, 0, 0, 5, statuslist_outline)
-                --
-                window.statuslist:Resort()
-            end)
-            --[[
-            utility:Connection(rs.Heartbeat, function()
-                if game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") ~= nil then 
-                    for i,v in next, window.statuslist.statuses do
-                        if string.match(i, "Velocity") then
-                            v:Update("Velocity | "..tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.X)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.Z)) or "0, 0, 0")
-                        else
-                            v:Update("Position | "..tostring(math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.X)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Y)..", "..math.round(game.Players.LocalPlayer.Character.HumanoidRootPart.Position.Z)) or "0, 0, 0")
-                        end
-                    end
-                end
-            end)
-            --]]
+            library.custom.statuslist_outline = statuslist_outline
+            library.custom.statuslist_inline = statuslist_inline
+            library.custom.statuslist_frame = statuslist_frame
+            library.custom.statuslist_accent = statuslist_accent
+            library.custom.statuslist_title = statuslist_title
         end
         function window:Cursor(info)
             window.cursor = {}
@@ -2595,20 +2355,6 @@ do
             library.colors[cursor_inline] = {
                 Color = "accent"
             }
-            --
-            utility:Connection(rs.RenderStepped, function()
-                local mouseLocation = utility:MouseLocation()
-                --
-                cursor.PointA = Vector2.new(mouseLocation.X, mouseLocation.Y)
-                cursor.PointB = Vector2.new(mouseLocation.X + 12, mouseLocation.Y + 4)
-                cursor.PointC = Vector2.new(mouseLocation.X + 4, mouseLocation.Y + 12)
-                --
-                cursor_inline.PointA = Vector2.new(mouseLocation.X, mouseLocation.Y)
-                cursor_inline.PointB = Vector2.new(mouseLocation.X + 12, mouseLocation.Y + 4)
-                cursor_inline.PointC = Vector2.new(mouseLocation.X + 4, mouseLocation.Y + 12)
-
-                
-            end)
             --
             uis.MouseIconEnabled = false
             --
@@ -2762,7 +2508,28 @@ do
             end
         end)
         --
-        utility:Connection(rs.RenderStepped,function()
+        local Tick = tick()
+        local Build = getgenv().scriptData ~= nil and getgenv().scriptData.build or "dev"
+        local UID = getgenv().userData ~= nil and getgenv().userData.uid or "1"
+        --
+        local conn 
+        conn = utility:Connection(rs.RenderStepped, function(delta)
+            local cursor = window.cursor["cursor"]
+            local cursor_inline = window.cursor["cursor_inline"] 
+            local mouseLocation = utility:MouseLocation()
+            --
+            if not cursor then
+                conn:Disconnect()
+            end
+            --
+            cursor.PointA = Vector2.new(mouseLocation.X, mouseLocation.Y)
+            cursor.PointB = Vector2.new(mouseLocation.X + 12, mouseLocation.Y + 4)
+            cursor.PointC = Vector2.new(mouseLocation.X + 4, mouseLocation.Y + 12)
+            --
+            cursor_inline.PointA = Vector2.new(mouseLocation.X, mouseLocation.Y)
+            cursor_inline.PointB = Vector2.new(mouseLocation.X + 12, mouseLocation.Y + 4)
+            cursor_inline.PointC = Vector2.new(mouseLocation.X + 4, mouseLocation.Y + 12)
+            --
             if window.currentContent.textbox and window.currentContent.textbox.Fire and window.currentContent.textbox.Backspace then
                 local Time = (tick() - window.currentContent.textbox.Backspace[1])
                 --
@@ -2774,10 +2541,35 @@ do
                     end
                 end
             end
+            --
+            library.shared.fps = 1 / delta
+            library.shared.ping = stats.Network.ServerStatsItem["Data Ping"]:GetValue()
+            --
+            if tick() - Tick > 0.1 then
+                Tick = tick()
+                library.custom.watermark_title.Text = "$$ nordhook $$ / " .. Build .. " / uid " .. UID .. " / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
+                window.watermark:UpdateSize()
+            end
         end)
         --
         utility:Connection(ws.CurrentCamera:GetPropertyChangedSignal("ViewportSize"),function()
             window:Move(Vector2.new((utility:GetScreenSize().X/2) - (size.X/2), (utility:GetScreenSize().Y/2) - (size.Y/2)))
+            --
+            library.custom.statuslist_outline.Position = utility:Position(1, -160, 0.4, 0)
+            library.custom.statuslist_inline.Position = utility:Position(0, 1, 0, 1, library.custom.statuslist_outline)
+            library.custom.statuslist_frame.Position = utility:Position(0, 1, 0, 1, library.custom.statuslist_inline)
+            library.custom.statuslist_accent.Position = utility:Position(0, 0, 0, 0, library.custom.statuslist_frame)
+            library.custom.statuslist_title.Position = utility:Position(0.5, 0, 0, 5, library.custom.statuslist_outline)
+            --
+            window.statuslist:Resort()
+            --
+            library.custom.keybindslist_outline.Position = utility:Position(0, 10, 0.4, 0)
+            library.custom.keybindslist_inline.Position = utility:Position(0, 1, 0, 1, library.custom.keybindslist_outline)
+            library.custom.keybindslist_frame.Position = utility:Position(0, 1, 0, 1, library.custom.keybindslist_inline)
+            library.custom.keybindslist_accent.Position = utility:Position(0, 0, 0, 0, library.custom.keybindslist_frame)
+            library.custom.keybindslist_title.Position = utility:Position(0.5, 0, 0, 5, library.custom.keybindslist_outline)
+            --
+            window.keybindslist:Resort()
         end)
         --
 		return setmetatable(window, library)
@@ -2930,7 +2722,7 @@ do
         --
         library.began[#library.began + 1] = function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and window.isVisible and utility:MouseOverDrawing({page_button.Position.X,page_button.Position.Y,page_button.Position.X + page_button.Size.X,page_button.Position.Y + page_button.Size.Y}) and window.currentPage ~= page then
-                if page.name == "Players" then
+                if page.name == "visuals" then
                     window.VisualPreview:SetPreviewState(true)
                 else
                     window.VisualPreview:SetPreviewState(false)
@@ -3646,7 +3438,7 @@ do
                 Visible = page.open
             }, playerList.visibleContent)
             --
-            utility:LoadImage(button_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+            utility:LoadImage(button_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
             --
             function button:Update(Selection)
                 local Visible = Selection ~= nil and (Selection[1] ~= localplayer) or false
@@ -3696,7 +3488,7 @@ do
             --
             function button:Close()
                 button.open = not button.open
-                utility:LoadImage(button_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                utility:LoadImage(button_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                 --
                 for i,v in pairs(button.holder.drawings) do
                     utility:Remove(v)
@@ -3713,7 +3505,7 @@ do
             function button:Open()
                 window:CloseContent()
                 button.open = not button.open
-                utility:LoadImage(button_image, "arrow_up", getsynasset("NordHook/Assets/arrow_up.png"))
+                utility:LoadImage(button_image, "arrow_up", retrieveasset("nordhook/assets/arrow_up.png"))
                 --
                 local button_open_outline = utility:Create("Frame", {Vector2.new(0,21), button_outline}, {
                     Size = utility:Size(1, 0, 0, 3 + (#button.options * 19), button_outline),
@@ -3775,7 +3567,7 @@ do
                 window.currentContent.button = button
             end
             --
-            utility:LoadImage(button_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+            utility:LoadImage(button_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
             --
             library.began[#library.began + 1] = function(Input)
                 if Input.UserInputType == Enum.UserInputType.MouseButton1 and (button_outline.Visible or button.open) and window.isVisible then
@@ -3798,11 +3590,11 @@ do
                             end
                         elseif utility:MouseOverDrawing({button_outline.Position.X, button_outline.Position.Y, button_outline.Position.X + button_outline.Size.X, button_outline.Position.Y + button_outline.Size.Y}) and not window:IsOverContent() then
                             task.spawn(function()
-                                utility:LoadImage(button_gradient, "gradientdown", getsynasset("NordHook/Assets/gradientdown.png")) 
+                                utility:LoadImage(button_gradient, "gradientdown", retrieveasset("nordhook/assets/gradientdown.png")) 
                                 --
                                 task.wait(0.15)
                                 --
-                                utility:LoadImage(button_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png")) 
+                                utility:LoadImage(button_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png")) 
                             end)
                             --
                             if not button.open then
@@ -3824,7 +3616,7 @@ do
             playerList.buttons[#playerList.buttons + 1] = button
         end
         --
-        utility:LoadImage(list_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(list_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         function playerList:GetSelection()
             for Index, Value in pairs(playerList.players) do
@@ -4113,7 +3905,7 @@ do
             Color = "textcolor"
         }
         --
-        utility:LoadImage(toggle__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(toggle__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         function toggle:Get()
             return toggle.current
@@ -4234,9 +4026,9 @@ do
             }, section.visibleContent)
             --
             if transp then
-                utility:LoadImage(colorpicker__transparency, "cptransp", getsynasset("NordHook/Assets/cptransp.png"))
+                utility:LoadImage(colorpicker__transparency, "cptransp", retrieveasset("nordhook/assets/cptransp.png"))
             end
-            utility:LoadImage(colorpicker__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+            utility:LoadImage(colorpicker__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
             --
             function colorpicker:Set(color, transp_val)
                 if typeof(color) == "table" then
@@ -4533,13 +4325,13 @@ do
                                     Color = Color3.fromHSV(0, 0, 1 - colorpicker.current[4]),
                                 }, colorpicker.holder.drawings);colorpicker.holder.transparency_cursor[3] = colorpicker_open_transparency_cursor_color
                                 --
-                                utility:LoadImage(colorpicker_open_transparency_image, "transp", getsynasset("NordHook/Assets/transp.png"))
-                                --utility:LoadImage(colorpicker_open_transparency_image, "transp", getsynasset("NordHook/Assets/transp2.png"))
+                                utility:LoadImage(colorpicker_open_transparency_image, "transp", retrieveasset("nordhook/assets/transp.png"))
+                                --utility:LoadImage(colorpicker_open_transparency_image, "transp", retrieveasset("nordhook/assets/transp2.png"))
                             end
                             --
-                            utility:LoadImage(colorpicker_open_picker_image, "valsat", getsynasset("NordHook/Assets/valsat.png"))
-                            utility:LoadImage(colorpicker_open_picker_cursor, "valsat_cursor", getsynasset("NordHook/Assets/valsat_cursor.png"))
-                            utility:LoadImage(colorpicker_open_huepicker_image, "hue", getsynasset("NordHook/Assets/hue.png"))
+                            utility:LoadImage(colorpicker_open_picker_image, "valsat", retrieveasset("nordhook/assets/valsat.png"))
+                            utility:LoadImage(colorpicker_open_picker_cursor, "valsat_cursor", retrieveasset("nordhook/assets/valsat_cursor.png"))
+                            utility:LoadImage(colorpicker_open_huepicker_image, "hue", retrieveasset("nordhook/assets/hue.png"))
                             --
                             window.currentContent.frame = colorpicker_open_inline
                             window.currentContent.colorpicker = colorpicker
@@ -4702,7 +4494,7 @@ do
                 Color = "textcolor"
             }
             --
-            utility:LoadImage(keybind__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+            utility:LoadImage(keybind__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
             --
             function keybind:Shorten(string)
                 for i,v in pairs(shortenedInputs) do
@@ -4922,7 +4714,7 @@ do
                             Visible = page.open
                         }, keybind.modemenu.drawings)
                         --
-                        utility:LoadImage(keybind__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+                        utility:LoadImage(keybind__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
                         --
                         for i,v in pairs({"Always", "Toggle", "On Hold", "Off Hold"}) do
                             local button_title = utility:Create("TextLabel", {Vector2.new(modemenu_frame.Size.X/2,15 * (i-1)), modemenu_frame}, {
@@ -5084,7 +4876,7 @@ do
             Color = "textcolor"
         }
         --
-        utility:LoadImage(slider__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(slider__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         function slider:Set(value)
             local oldval = slider.current
@@ -5211,16 +5003,16 @@ do
             Color = "textcolor"
         }
         --
-        utility:LoadImage(button_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(button_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         library.began[#library.began + 1] = function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and button_outline.Visible and window.isVisible and utility:MouseOverDrawing({section.section_frame.Position.X, section.section_frame.Position.Y + button.axis, section.section_frame.Position.X + section.section_frame.Size.X, section.section_frame.Position.Y + button.axis + 20}) and not window:IsOverContent() then
                 task.spawn(function()
-                    utility:LoadImage(button_gradient, "gradientdown", getsynasset("NordHook/Assets/gradientdown.png")) 
+                    utility:LoadImage(button_gradient, "gradientdown", retrieveasset("nordhook/assets/gradientdown.png")) 
                     --
                     task.wait(0.15)
                     --
-                    utility:LoadImage(button_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png")) 
+                    utility:LoadImage(button_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png")) 
                 end)
                 --
                 callback()
@@ -5319,7 +5111,7 @@ do
             Color = textbox.current == "" and (placeholder and "textdark") or "textcolor"
         }
         --
-        utility:LoadImage(textbox_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(textbox_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         function textbox:Get()
             return textbox.current
@@ -5348,11 +5140,11 @@ do
             if Input.UserInputType == Enum.UserInputType.MouseButton1 and textbox_outline.Visible and window.isVisible then
                 if reactive and utility:MouseOverDrawing({section.section_frame.Position.X, section.section_frame.Position.Y + textbox.axis, section.section_frame.Position.X + section.section_frame.Size.X, section.section_frame.Position.Y + textbox.axis + 20}) and not window:IsOverContent() then
                     task.spawn(function()
-                        utility:LoadImage(textbox_gradient, "gradientdown", getsynasset("NordHook/Assets/gradientdown.png")) 
+                        utility:LoadImage(textbox_gradient, "gradientdown", retrieveasset("nordhook/assets/gradientdown.png")) 
                         --
                         task.wait(0.15)
                         --
-                        utility:LoadImage(textbox_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png")) 
+                        utility:LoadImage(textbox_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png")) 
                     end)
                     --
                     if not (window.currentContent.textbox and window.currentContent.textbox.Name == identifier) then
@@ -5408,7 +5200,7 @@ do
                             Color = "accent"
                         }
                         --
-                        utility:LoadImage(textbox_gradient, "gradientdown", getsynasset("NordHook/Assets/gradientdown.png")) 
+                        utility:LoadImage(textbox_gradient, "gradientdown", retrieveasset("nordhook/assets/gradientdown.png")) 
                         --
                         task.wait(0.15)
                         --
@@ -5419,7 +5211,7 @@ do
                             Color = textbox.current == "" and (placeholder and "textdark") or "textcolor"
                         }
                         --
-                        utility:LoadImage(textbox_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+                        utility:LoadImage(textbox_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
                     end)
                     --
                     setclipboard(textbox.current)
@@ -5509,16 +5301,16 @@ do
                 Color = "textcolor"
             }
             --
-            utility:LoadImage(button_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+            utility:LoadImage(button_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
             --
             library.began[#library.began + 1] = function(Input)
                 if Input.UserInputType == Enum.UserInputType.MouseButton1 and button_outline.Visible and window.isVisible and utility:MouseOverDrawing({section.section_frame.Position.X + (i == 2 and (section.section_frame.Size.X/2) or 0), section.section_frame.Position.Y + button.axis, section.section_frame.Position.X + section.section_frame.Size.X - (i == 1 and (section.section_frame.Size.X/2) or 0), section.section_frame.Position.Y + button.axis + 20}) and not window:IsOverContent() then
                     task.spawn(function()
-                        utility:LoadImage(button_gradient, "gradientdown", getsynasset("NordHook/Assets/gradientdown.png")) 
+                        utility:LoadImage(button_gradient, "gradientdown", retrieveasset("nordhook/assets/gradientdown.png")) 
                         --
                         task.wait(0.15)
                         --
-                        utility:LoadImage(button_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png")) 
+                        utility:LoadImage(button_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png")) 
                     end)
                     --
                     buttons[i][2]()
@@ -5622,8 +5414,8 @@ do
             Visible = page.open
         }, section.visibleContent);dropdown["dropdown_image"] = dropdown_image
         --
-        utility:LoadImage(dropdown_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
-        utility:LoadImage(dropdown__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(dropdown_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
+        utility:LoadImage(dropdown__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         if max then
             local lastupdate = dropdown.scrollindex
@@ -5697,17 +5489,17 @@ do
                     end
                 elseif utility:MouseOverDrawing({section.section_frame.Position.X, section.section_frame.Position.Y + dropdown.axis, section.section_frame.Position.X + section.section_frame.Size.X, section.section_frame.Position.Y + dropdown.axis + (name and (15 + 20) or (20))}) and not window:IsOverContent() then
                     task.spawn(function()
-                        utility:LoadImage(dropdown__gradient, "gradientdown", getsynasset("NordHook/Assets/gradientdown.png")) 
+                        utility:LoadImage(dropdown__gradient, "gradientdown", retrieveasset("nordhook/assets/gradientdown.png")) 
                         --
                         task.wait(0.15)
                         --
-                        utility:LoadImage(dropdown__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png")) 
+                        utility:LoadImage(dropdown__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png")) 
                     end)
                     --
                     if not dropdown.open then
                         window:CloseContent()
                         dropdown.open = not dropdown.open
-                        utility:LoadImage(dropdown_image, "arrow_up", getsynasset("NordHook/Assets/arrow_up.png"))
+                        utility:LoadImage(dropdown_image, "arrow_up", retrieveasset("nordhook/assets/arrow_up.png"))
                         --
                         local dropdown_open_outline = utility:Create("Frame", {Vector2.new(0,19), dropdown_outline}, {
                             Size = utility:Size(1, 0, 0, 3 + ((max and max or #dropdown.options) * 19), dropdown_outline),
@@ -5793,7 +5585,7 @@ do
                         window.currentContent.dropdown = dropdown
                     else
                         dropdown.open = not dropdown.open
-                        utility:LoadImage(dropdown_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                        utility:LoadImage(dropdown_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                         --
                         for i,v in pairs(dropdown.holder.drawings) do
                             utility:Remove(v)
@@ -5809,7 +5601,7 @@ do
                 else
                     if dropdown.open then
                         dropdown.open = not dropdown.open
-                        utility:LoadImage(dropdown_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                        utility:LoadImage(dropdown_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                         --
                         for i,v in pairs(dropdown.holder.drawings) do
                             utility:Remove(v)
@@ -5825,7 +5617,7 @@ do
                 end
             elseif Input.UserInputType == Enum.UserInputType.MouseButton1 and dropdown.open then
                 dropdown.open = not dropdown.open
-                utility:LoadImage(dropdown_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                utility:LoadImage(dropdown_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                 --
                 for i,v in pairs(dropdown.holder.drawings) do
                     utility:Remove(v)
@@ -5974,8 +5766,8 @@ do
             Visible = page.open
         }, section.visibleContent);multibox["multibox_image"] = multibox_image
         --
-        utility:LoadImage(multibox_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
-        utility:LoadImage(multibox__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(multibox_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
+        utility:LoadImage(multibox__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         function multibox:Update()
             if multibox.open and multibox.holder.inline then
@@ -6049,17 +5841,17 @@ do
                     end
                 elseif utility:MouseOverDrawing({section.section_frame.Position.X, section.section_frame.Position.Y + multibox.axis, section.section_frame.Position.X + section.section_frame.Size.X, section.section_frame.Position.Y + multibox.axis + (name and 15 or 0) + 20}) and not window:IsOverContent() then
                     task.spawn(function()
-                        utility:LoadImage(multibox__gradient, "gradientdown", getsynasset("NordHook/Assets/gradientdown.png")) 
+                        utility:LoadImage(multibox__gradient, "gradientdown", retrieveasset("nordhook/assets/gradientdown.png")) 
                         --
                         task.wait(0.15)
                         --
-                        utility:LoadImage(multibox__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png")) 
+                        utility:LoadImage(multibox__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png")) 
                     end)
                     --
                     if not multibox.open then
                         window:CloseContent()
                         multibox.open = not multibox.open
-                        utility:LoadImage(multibox_image, "arrow_up", getsynasset("NordHook/Assets/arrow_up.png"))
+                        utility:LoadImage(multibox_image, "arrow_up", retrieveasset("nordhook/assets/arrow_up.png"))
                         --
                         local multibox_open_outline = utility:Create("Frame", {Vector2.new(0,19), multibox_outline}, {
                             Size = utility:Size(1, 0, 0, 3 + (#multibox.options * 19), multibox_outline),
@@ -6102,7 +5894,7 @@ do
                                 Visible = page.open
                             }, multibox.holder.drawings)
                             --
-                            utility:LoadImage(multibox_value_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))]]
+                            utility:LoadImage(multibox_value_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))]]
                             --
                             local multibox_value = utility:Create("TextLabel", {Vector2.new(Find(multibox.current, v) and 8 or 6,2), multibox_value_frame}, {
                                 Text = v,
@@ -6124,7 +5916,7 @@ do
                         window.currentContent.multibox = multibox
                     else
                         multibox.open = not multibox.open
-                        utility:LoadImage(multibox_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                        utility:LoadImage(multibox_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                         --
                         for i,v in pairs(multibox.holder.drawings) do
                             utility:Remove(v)
@@ -6140,7 +5932,7 @@ do
                 else
                     if multibox.open then
                         multibox.open = not multibox.open
-                        utility:LoadImage(multibox_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                        utility:LoadImage(multibox_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                         --
                         for i,v in pairs(multibox.holder.drawings) do
                             utility:Remove(v)
@@ -6156,7 +5948,7 @@ do
                 end
             elseif Input.UserInputType == Enum.UserInputType.MouseButton1 and multibox.open then
                 multibox.open = not multibox.open
-                utility:LoadImage(multibox_image, "arrow_down", getsynasset("NordHook/Assets/arrow_down.png"))
+                utility:LoadImage(multibox_image, "arrow_down", retrieveasset("nordhook/assets/arrow_down.png"))
                 --
                 for i,v in pairs(multibox.holder.drawings) do
                     utility:Remove(v)
@@ -6270,7 +6062,7 @@ do
             Color = "textcolor"
         }
         --
-        utility:LoadImage(keybind__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(keybind__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         function keybind:Shorten(string)
             for i,v in pairs(shortenedInputs) do
@@ -6486,7 +6278,7 @@ do
                         Visible = page.open
                     }, keybind.modemenu.drawings)
                     --
-                    utility:LoadImage(keybind__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+                    utility:LoadImage(keybind__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
                     --
                     for i,v in pairs({"Always", "Toggle", "On Hold", "Off Hold"}) do
                         local button_title = utility:Create("TextLabel", {Vector2.new(modemenu_frame.Size.X/2,15 * (i-1)), modemenu_frame}, {
@@ -6621,9 +6413,9 @@ do
         }
         --
         if transp then
-            utility:LoadImage(colorpicker__transparency, "cptransp", getsynasset("NordHook/Assets/cptransp.png"))
+            utility:LoadImage(colorpicker__transparency, "cptransp", retrieveasset("nordhook/assets/cptransp.png"))
         end
-        utility:LoadImage(colorpicker__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(colorpicker__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         function colorpicker:Set(color, transp_val)
             if typeof(color) == "table" then
@@ -6916,12 +6708,12 @@ do
                                 Color = Color3.fromHSV(0, 0, 1 - colorpicker.current[4]),
                             }, colorpicker.holder.drawings);colorpicker.holder.transparency_cursor[3] = colorpicker_open_transparency_cursor_color
                             --
-                            utility:LoadImage(colorpicker_open_transparency_image, "transp", getsynasset("NordHook/Assets/transp.png"))
+                            utility:LoadImage(colorpicker_open_transparency_image, "transp", retrieveasset("nordhook/assets/transp.png"))
                         end
                         --
-                        utility:LoadImage(colorpicker_open_picker_image, "valsat", getsynasset("NordHook/Assets/valsat.png"))
-                        utility:LoadImage(colorpicker_open_picker_cursor, "valsat_cursor", getsynasset("NordHook/Assets/valsat_cursor.png"))
-                        utility:LoadImage(colorpicker_open_huepicker_image, "hue", getsynasset("NordHook/Assets/hue.png"))
+                        utility:LoadImage(colorpicker_open_picker_image, "valsat", retrieveasset("nordhook/assets/valsat.png"))
+                        utility:LoadImage(colorpicker_open_picker_cursor, "valsat_cursor", retrieveasset("nordhook/assets/valsat_cursor.png"))
+                        utility:LoadImage(colorpicker_open_huepicker_image, "hue", retrieveasset("nordhook/assets/hue.png"))
                         --
                         window.currentContent.frame = colorpicker_open_inline
                         window.currentContent.colorpicker = colorpicker
@@ -7069,9 +6861,9 @@ do
             }, section.visibleContent)
             --
             if transp then
-                utility:LoadImage(colorpicker__transparency, "cptransp", getsynasset("NordHook/Assets/cptransp.png"))
+                utility:LoadImage(colorpicker__transparency, "cptransp", retrieveasset("nordhook/assets/cptransp.png"))
             end
-            utility:LoadImage(colorpicker__gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+            utility:LoadImage(colorpicker__gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
             --
             function colorpicker:Set(color, transp_val)
                 if typeof(color) == "table" then
@@ -7364,13 +7156,13 @@ do
                                     Color = Color3.fromHSV(0, 0, 1 - colorpicker.current[4]),
                                 }, colorpicker.holder.drawings);colorpicker.holder.transparency_cursor[3] = colorpicker_open_transparency_cursor_color
                                 --
-                                utility:LoadImage(colorpicker_open_transparency_image, "transp", getsynasset("NordHook/Assets/transp.png"))
-                                --utility:LoadImage(colorpicker_open_transparency_image, "transp", getsynasset("NordHook/Assets/transp2.png"))
+                                utility:LoadImage(colorpicker_open_transparency_image, "transp", retrieveasset("nordhook/assets/transp.png"))
+                                --utility:LoadImage(colorpicker_open_transparency_image, "transp", retrieveasset("nordhook/assets/transp2.png"))
                             end
                             --
-                            utility:LoadImage(colorpicker_open_picker_image, "valsat", getsynasset("NordHook/Assets/valsat.png"))
-                            utility:LoadImage(colorpicker_open_picker_cursor, "valsat_cursor", getsynasset("NordHook/Assets/valsat_cursor.png"))
-                            utility:LoadImage(colorpicker_open_huepicker_image, "hue", getsynasset("NordHook/Assets/hue.png"))
+                            utility:LoadImage(colorpicker_open_picker_image, "valsat", retrieveasset("nordhook/assets/valsat.png"))
+                            utility:LoadImage(colorpicker_open_picker_cursor, "valsat_cursor", retrieveasset("nordhook/assets/valsat_cursor.png"))
+                            utility:LoadImage(colorpicker_open_huepicker_image, "hue", retrieveasset("nordhook/assets/hue.png"))
                             --
                             window.currentContent.frame = colorpicker_open_inline
                             window.currentContent.colorpicker = colorpicker
@@ -7554,7 +7346,7 @@ do
             list.buttons[i] = config_title
         end
         --
-        utility:LoadImage(list_gradient, "gradient", getsynasset("NordHook/Assets/gradient.png"))
+        utility:LoadImage(list_gradient, "gradient", retrieveasset("nordhook/assets/gradient.png"))
         --
         function list:UpdateScroll()
             if (#list.options - list.max) > 0 then
@@ -7651,113 +7443,113 @@ do
 end
 --
 
-local NordHook = {
+local nordhook = {
     Locals = {
         LastPreviewUpdate = 5
     },
     Safe = true,
     Configs = {}
 }
--- hello matas
+
 function utility:UpdatePreview(Pass)
-    if (NordHook.Locals.Window and NordHook.Locals.Window.isVisible and NordHook.Locals.SelectedPage == "Players") or Pass then
-        if NordHook.Locals.SelectedPage and NordHook.Locals.SelectedPlayersSection then
+    if (nordhook.Locals.Window and nordhook.Locals.Window.isVisible and nordhook.Locals.SelectedPage == "visuals") or Pass then
+        if nordhook.Locals.SelectedPage and nordhook.Locals.SelectedPlayersSection then
             local Size = {0, 0}
-            local Selection = ("Players" .. NordHook.Locals.SelectedPlayersSection .. "_")
+            local Selection = ("Players" .. nordhook.Locals.SelectedPlayersSection .. "_")
             --
             if Flags[Selection .. "Chams"]:Get() then
                 local ChamsFill, ChamsFillTransparency = Flags[Selection .. "ChamsFill"]:Get().Color, Flags[Selection .. "ChamsFill"]:Get().Transparency
                 local ChamsOutline, ChamsOutlineTransparency = Flags[Selection .. "ChamsOutline"]:Get().Color, Flags[Selection .. "ChamsOutline"]:Get().Transparency
                 --
-                local ChamsAuto = NordHook.Locals.SelectedPlayersSection ~= "Local" and Flags[Selection .. "ChamsAuto"]:Get()
+                local ChamsAuto = nordhook.Locals.SelectedPlayersSection ~= "Local" and Flags[Selection .. "ChamsAuto"]:Get()
                 local ChamsVisible, ChamsVisibleTransparency = ChamsAuto and Flags[Selection .. "ChamsVisible"]:Get().Color, ChamsAuto and Flags[Selection .. "ChamsVisible"]:Get().Transparency
                 local ChamsHidden, ChamsHiddenTransparency = ChamsAuto and Flags[Selection .. "ChamsHidden"]:Get().Color, ChamsAuto and Flags[Selection .. "ChamsHidden"]:Get().Transparency
                 --
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Color", ChamsOutline, 1)
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Transparency", 1 - ChamsOutlineTransparency, 1)
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Color", ChamsAuto and ((NordHook.Locals.Window.VisualPreview.Visible) and ChamsVisible or ChamsHidden) or ChamsFill, 2)
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Transparency", 1 - (ChamsAuto and ((NordHook.Locals.Window.VisualPreview.Visible) and ChamsVisibleTransparency or ChamsHiddenTransparency) or ChamsFillTransparency), 2)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Color", ChamsOutline, 1)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Transparency", 1 - ChamsOutlineTransparency, 1)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Color", ChamsAuto and ((nordhook.Locals.Window.VisualPreview.Visible) and ChamsVisible or ChamsHidden) or ChamsFill, 2)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Transparency", 1 - (ChamsAuto and ((nordhook.Locals.Window.VisualPreview.Visible) and ChamsVisibleTransparency or ChamsHiddenTransparency) or ChamsFillTransparency), 2)
             else
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Transparency", 0, 1)
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Transparency", 0, 2)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Transparency", 0, 1)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Chams", "Transparency", 0, 2)
             end
             --
             if Flags[Selection .. "Box"]:Get() then
                 local BoxColor, BoxTransparency = Flags[Selection .. "BoxColor"]:Get().Color, Flags[Selection .. "BoxColor"]:Get().Transparency
                 local BoxFillColor, BoxFillTransparency = Flags[Selection .. "BoxFill"]:Get().Color, Flags[Selection .. "BoxFill"]:Get().Transparency
                 --
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Box", "Color", BoxColor)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Box", "Transparency", 1 - BoxTransparency)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Outline", "Transparency", 1 - BoxTransparency)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Fill", "Color", BoxFillColor)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Fill", "Transparency", 1 - BoxFillTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Box", "Color", BoxColor)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Box", "Transparency", 1 - BoxTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Outline", "Transparency", 1 - BoxTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Fill", "Color", BoxFillColor)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Box", "Fill", "Transparency", 1 - BoxFillTransparency)
             else
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Box", "Transparency", 0)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Box", "Transparency", 0)
             end
             --
             local HealthBarColor, HealthBarColor2, HealthBarTransparency = Flags[Selection .. "HealthBarColor1"]:Get().Color, Flags[Selection .. "HealthBarColor2"]:Get().Color, Flags[Selection .. "HealthBarColor1"]:Get().Transparency
             --
             if Flags[Selection .. "HealthBar"]:Get() then
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("HealthBar", "Box", "Transparency", 1 - HealthBarTransparency)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("HealthBar", "Outline", "Transparency", 1 - HealthBarTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("HealthBar", "Box", "Transparency", 1 - HealthBarTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("HealthBar", "Outline", "Transparency", 1 - HealthBarTransparency)
                 --
                 Size[1] = 5
             else
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("HealthBar", "Transparency", 0)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("HealthBar", "Transparency", 0)
             end
             --
             if Flags[Selection .. "HealthNum"]:Get() or Flags[Selection .. "HealthBar"]:Get() then
-                NordHook.Locals.Window.VisualPreview.Color1 = HealthBarColor
-                NordHook.Locals.Window.VisualPreview.Color2 = HealthBarColor2
+                nordhook.Locals.Window.VisualPreview.Color1 = HealthBarColor
+                nordhook.Locals.Window.VisualPreview.Color2 = HealthBarColor2
                 --
-                NordHook.Locals.Window.VisualPreview:UpdateHealthBar()
+                nordhook.Locals.Window.VisualPreview:UpdateHealthBar()
             end
             --
             if Flags[Selection .. "HealthNum"]:Get() then
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("HealthBar", "Value", "Transparency", 1 - HealthBarTransparency or 0)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("HealthBar", "Value", "Transparency", 1 - HealthBarTransparency or 0)
                 --
-                NordHook.Locals.Window.VisualPreview:UpdateHealthValue(Size[1])
+                nordhook.Locals.Window.VisualPreview:UpdateHealthValue(Size[1])
             else
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("HealthBar", "Value", "Transparency", 0)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("HealthBar", "Value", "Transparency", 0)
             end
             --
             if Flags[Selection .. "Name"]:Get() then
                 local NameColor, NameTransparency = Flags[Selection .. "NameColor"]:Get().Color, Flags[Selection .. "NameColor"]:Get().Transparency
                 --
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Title", "Text", "Color", NameColor)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Title", "Text", "Transparency", 1 - NameTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Title", "Text", "Color", NameColor)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Title", "Text", "Transparency", 1 - NameTransparency)
             else
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Title", "Transparency", 0)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Title", "Transparency", 0)
             end
             --
             if Flags[Selection .. "Distance"]:Get() then
                 local DistanceColor, DistanceTransparency = Flags[Selection .. "DistanceColor"]:Get().Color, Flags[Selection .. "DistanceColor"]:Get().Transparency
                 --
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Distance", "Text", "Color", DistanceColor)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Distance", "Text", "Transparency", 1 - DistanceTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Distance", "Text", "Color", DistanceColor)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Distance", "Text", "Transparency", 1 - DistanceTransparency)
             else
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Distance", "Transparency", 0)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Distance", "Transparency", 0)
             end
             --
             if Flags[Selection .. "Tool"]:Get() then
                 local ToolColor, ToolTransparency = Flags[Selection .. "ToolColor"]:Get().Color, Flags[Selection .. "ToolColor"]:Get().Transparency
                 --
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Tool", "Text", "Color", ToolColor)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Tool", "Text", "Transparency", 1 - ToolTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Tool", "Text", "Color", ToolColor)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Tool", "Text", "Transparency", 1 - ToolTransparency)
             else
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Tool", "Transparency", 0)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Tool", "Transparency", 0)
             end
             --
             if Flags[Selection .. "Flags"]:Get() then
                 local FlagsColor, FlagsTransparency = Flags[Selection .. "FlagsColor"]:Get().Color, Flags[Selection .. "FlagsColor"]:Get().Transparency
                 --
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Flags", "Text", "Color", FlagsColor)
-                NordHook.Locals.Window.VisualPreview:SetComponentSelfProperty("Flags", "Text", "Transparency", 1 - FlagsTransparency)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Flags", "Text", "Color", FlagsColor)
+                nordhook.Locals.Window.VisualPreview:SetComponentSelfProperty("Flags", "Text", "Transparency", 1 - FlagsTransparency)
             else
-                NordHook.Locals.Window.VisualPreview:SetComponentProperty("Flags", "Transparency", 0)
+                nordhook.Locals.Window.VisualPreview:SetComponentProperty("Flags", "Transparency", 0)
             end
             --
-            NordHook.Locals.Window.VisualPreview:ValidateSize("X", Size[1])
+            nordhook.Locals.Window.VisualPreview:ValidateSize("X", Size[1])
         end
     end
 end
@@ -7766,25 +7558,21 @@ utility:Connection(rs.Heartbeat, function()
     utility:ThreadFunction(library.UpdateHue, "0x01")
     local Tick = tick()
     --
-    if (Tick - NordHook.Locals.LastPreviewUpdate) > 0.05 then
+    if (Tick - nordhook.Locals.LastPreviewUpdate) > 0.05 then
         utility:ThreadFunction(utility.UpdatePreview)
-        NordHook.Locals.LastPreviewUpdate = Tick
+        nordhook.Locals.LastPreviewUpdate = Tick
     end
 end)
 --
-
--- init configs
-if isfolder("NordHook/Configs") then
-    for i,v in pairs(listfiles("NordHook/Configs")) do
-        table.insert(NordHook.Configs, v:split("\\")[2]:split(".")[1])
+if isfolder("nordhook/configs") then
+    for i,v in pairs(listfiles("nordhook/configs")) do
+        table.insert(nordhook.Configs, v:split("\\")[2]:split(".")[1])
     end
-else
-    makefolder("NordHook/Configs")
 end
 local HttpService = game:GetService("HttpService")
 local Library, utility, Flags, Theme = library, utility, library.pointers, theme
 local Languages, Themes = {}, {
-NordHook = {1, [[{"Outline":"000000","Accent":"6fa2ff","LightText":"ffffff","DarkText":"afafaf","LightContrast":"1e1e1e","CursorOutline":"0a0a0a","DarkContrast":"141414","TextBorder":"000000","Inline":"323232"}]]},
+nordhook = {1, [[{"Outline":"000000","Accent":"6fa2ff","LightText":"ffffff","DarkText":"afafaf","LightContrast":"1e1e1e","CursorOutline":"0a0a0a","DarkContrast":"141414","TextBorder":"000000","Inline":"323232"}]]},
 Abyss = {2, [[{"Outline":"0a0a0a","Accent":"8c87b4","LightText":"ffffff","DarkText":"afafaf","LightContrast":"1e1e1e","CursorOutline":"141414","DarkContrast":"141414","TextBorder":"0a0a0a","Inline":"2d2d2d"}]]},
 Fatality = {3, [[{"Outline":"0f0f28","Accent":"f00f50","LightText":"c8c8ff","DarkText":"afafaf","LightContrast":"231946","CursorOutline":"0f0f28","DarkContrast":"191432","TextBorder":"0a0a0a","Inline":"322850"}]]},
 Neverlose = {4, [[{"Outline":"000005","Accent":"00b4f0","LightText":"ffffff","DarkText":"afafaf","LightContrast":"000f1e","CursorOutline":"0f0f28","DarkContrast":"050514","TextBorder":"0a0a0a","Inline":"0a1e28"}]]},
@@ -7802,10 +7590,10 @@ Neko = {15, [[{"Outline":"000000","Accent":"d21f6a","LightText":"ffffff","DarkTe
 Corn = {16, [[{"Outline":"000000","Accent":"ff9000","LightText":"dcdcdc","DarkText":"afafaf","LightContrast":"252525","CursorOutline":"000000","DarkContrast":"191919","TextBorder":"000000","Inline":"333333"}]]},
 Minecraft = {17, [[{"Outline":"000000","Accent":"27ce40","LightText":"ffffff","DarkText":"d7d7d7","LightContrast":"333333","CursorOutline":"000000","DarkContrast":"262626","TextBorder":"000000","Inline":"333333"}]]}}
 --
-NordHook.Locals.ShiftTick = tick()
-NordHook.Locals.Shift = 0
+nordhook.Locals.ShiftTick = tick()
+nordhook.Locals.Shift = 0
 --
-function NordHook:CheckTeam(Player1, Player2)
+function nordhook:CheckTeam(Player1, Player2)
     if Library.Relations[Player2.UserId] == "Friend" then
         return false
     elseif Library.Relations[Player2.UserId] == "Enemy" or Library.Relations[Player2.UserId] == "Priority" then
@@ -7815,12 +7603,12 @@ function NordHook:CheckTeam(Player1, Player2)
     return (Player1.TeamColor ~= Player2.TeamColor)
 end
 --
-function NordHook:GetHealth(Player, Character, Humanoid)
+function nordhook:GetHealth(Player, Character, Humanoid)
     if Humanoid then
         return Clamp(Humanoid.Health, 0, Humanoid.MaxHealth), Humanoid.MaxHealth
     end
 end
-function NordHook:GetBodyParts(Character, RootPart, Indexes, Hitboxes)
+function nordhook:GetBodyParts(Character, RootPart, Indexes, Hitboxes)
     local Parts = {}
     local Hitboxes = Hitboxes or {"Head", "Torso", "Arms", "Legs"}
     --
@@ -7843,7 +7631,7 @@ function NordHook:GetBodyParts(Character, RootPart, Indexes, Hitboxes)
     return Parts
 end
 --
-function NordHook:ValidateClient(Player)
+function nordhook:ValidateClient(Player)
     local Object = Player.Character
     local Humanoid = (Object and Object:FindFirstChild("Humanoid"))
     local RootPart = (Humanoid and Object:FindFirstChild("HumanoidRootPart"))
@@ -7925,9 +7713,9 @@ do -- utility
     end
     --
     function Library:RefreshConfigList()
-        Flags["ConfigConfiguration_Box"].options = NordHook.Configs
+        Flags["ConfigConfiguration_Box"].options = nordhook.Configs
         Flags["ConfigConfiguration_Box"]:Refresh()
-        Flags["ConfigConfiguration_Box"].current = Clamp(Flags["ConfigConfiguration_Box"].current, 0, #NordHook.Configs)
+        Flags["ConfigConfiguration_Box"].current = Clamp(Flags["ConfigConfiguration_Box"].current, 0, #nordhook.Configs)
     end
     --
     function Library:GetConfig()
@@ -7978,7 +7766,7 @@ do -- utility
             end
         end
         --
-        return Config .. "[ NordHook ]"
+        return Config .. "[ nordhook ]"
     end
     --
     function Library:LoadConfig(Config)
@@ -7995,34 +7783,34 @@ do -- utility
         local Split = string.split
         if ConfigName then
             if Action == "Delete" then
-                local Found = Find(NordHook.Configs, ConfigName)
+                local Found = Find(nordhook.Configs, ConfigName)
                 --
                 if Found then
-                    delfile(("NordHook/Configs/%s"):format(ConfigName .. ".NordHook"), Config)
-                    Remove(NordHook.Configs, Found) 
+                    delfile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"), Config)
+                    Remove(nordhook.Configs, Found) 
                     Library:RefreshConfigList()
                 end
                 --
-                delfile(("NordHook/Configs/%s"):format(ConfigName .. ".NordHook"), Config)
+                delfile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"), Config)
                 Library:RefreshConfigList()
             elseif Action == "Save" then
                 local Config = Library:GetConfig()
                 --
                 if Config then
-                    if not Find(NordHook.Configs, ConfigName) then
-                        writefile(("NordHook/Configs/%s"):format(ConfigName .. ".NordHook"), Config)
-                        table.insert(NordHook.Configs, ConfigName)
+                    if not Find(nordhook.Configs, ConfigName) then
+                        writefile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"), Config)
+                        table.insert(nordhook.Configs, ConfigName)
                         Library:RefreshConfigList()
                     end
                     --
-                    writefile(("NordHook/Configs/%s"):format(ConfigName .. ".NordHook"), Config)
+                    writefile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"), Config)
                 end
             elseif Action == "Load" then
-                local Config = readfile(("NordHook/Configs/%s"):format(ConfigName .. ".NordHook"))
+                local Config = readfile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"))
                 local Table = Split(Config, "\n")
                 local Table2 = {}
                 --
-                if Table[#Table] == "[ NordHook ]" then
+                if Table[#Table] == "[ nordhook ]" then
                     Remove(Table, #Table)
                 end
                 --
@@ -8078,22 +7866,22 @@ do -- utility
     end
     --
     function Library:UpdateHue()
-        if (tick() - NordHook.Locals.ShiftTick) >= (1 / 60) then
-            NordHook.Locals.Shift = NordHook.Locals.Shift + 0.01
+        if (tick() - nordhook.Locals.ShiftTick) >= (1 / 60) then
+            nordhook.Locals.Shift = nordhook.Locals.Shift + 0.01
             --
             if Flags["ConfigTheme_AccentEffect"]:Get() == "Rainbow" then
                 Library:UpdateColor("Accent", Color3.fromHSV( tick() % 5 / 5, 0.55, 1))
             elseif Flags["ConfigTheme_AccentEffect"]:Get() == "Shift" then
                 local Hue, Saturation, Value = Flags["ConfigTheme_Accent"]:Get():ToHSV()
                 --
-                Library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Hue + (Math:Shift(NordHook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360))), Saturation, Value))
+                Library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Hue + (Math:Shift(nordhook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360))), Saturation, Value))
             elseif Flags["ConfigTheme_AccentEffect"]:Get() == "Reverse Shift" then
                 local Hue, Saturation, Value = Flags["ConfigTheme_Accent"]:Get():ToHSV()
                 --
-                Library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Clamp(Hue - (Math:Shift(NordHook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360)), 0, 9999)), Saturation, Value))
+                Library:UpdateColor("Accent", Color3.fromHSV(Math:Shift(Clamp(Hue - (Math:Shift(nordhook.Locals.Shift) * (Flags["ConfigTheme_EffectLength"]:Get() / 360)), 0, 9999)), Saturation, Value))
             end
             --
-            NordHook.Locals.ShiftTick = tick()
+            nordhook.Locals.ShiftTick = tick()
         end
     end
     --
@@ -8116,8 +7904,8 @@ do -- utility
         local Func = Name and function()
             local Passed, Statement = pcall(Func)
             --
-            if not Passed and not NordHook.Safe then
-                warn("NordHook:\n", "              " .. Name .. ":", Statement)
+            if not Passed and not nordhook.Safe then
+                warn("nordhook:\n", "              " .. Name .. ":", Statement)
             end
         end or Func
         local Thread = coroutine.create(Func)
@@ -8129,7 +7917,7 @@ do -- utility
     function utility:SafeCheck(Text)
         local Safe = Text:lower()
         --
-        for Index, Value in pairs(NordHook.Locals.BadWords) do Safe = Safe:gsub(Value, "_") end
+        for Index, Value in pairs(nordhook.Locals.BadWords) do Safe = Safe:gsub(Value, "_") end
         --
         return Safe
     end
@@ -8150,16 +7938,16 @@ do -- utility
     --
     function utility:MousePosition(Offset)
         if Offset then
-            return UserInputService:GetMouseLocation() + NordHook:CursorOffset()
+            return UserInputService:GetMouseLocation() + nordhook:CursorOffset()
         else
             return UserInputService:GetMouseLocation()
         end
     end
     --
     function utility:Console(Action, ...)
-        if not NordHook.Safe then
+        if not nordhook.Safe then
             Action(...)
         end
     end
 end
-return Library, utility, Library.pointers, theme, Themes, NordHook
+return Library, utility, Library.pointers, theme, Themes, nordhook
