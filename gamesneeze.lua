@@ -32,9 +32,9 @@ do
         end
     end
 end
-getgenv().scriptData = getgenv().scriptData and getgenv().scriptData or {build = "dev"}
+getgenv().scriptData = getgenv().scriptData and getgenv().scriptData or {build = "developer"}
 getgenv().userData = getgenv().userData and getgenv().userData or {uid = "1"}
-getgenv().retrieveasset = retrieveasset or getcustomasset
+getgenv().retrieveasset = getsynasset or getcustomasset
 
 
 -- // Variables
@@ -68,6 +68,8 @@ local Find = table.find
 local Clamp = math.clamp
 -- UI Variables
 local library = {
+    scriptname = "nordhook",
+    gamename = "criminality",
     drawings = {},
     objects = {},
     hidden = {},
@@ -955,7 +957,8 @@ do
     --
     function library:New(info)
 		local info = info or {}
-        local name = info.name or info.Name or info.title or info.Title or "UI Title"
+        local name = info.name or info.Name or info.title or info.Title or "nordhook"
+        local gamename = info.gamename or info.GameName or "criminality"
         local size = info.size or info.Size or Vector2.new(504,604)
         local accent = info.accent or info.Accent or info.color or info.Color or theme.accent
         local callback = info.callback or info.Callback or info.callBack or info.CallBack or function() end
@@ -965,6 +968,9 @@ do
         theme.accent = accent
         --
         local window = {pages = {}, loader = style == 2, init = false, pageammount = pageammount, isVisible = false, callback = callback, uibind = Enum.KeyCode.Z, wminfo = "$$ nordhook $$ || UID: " .. game.Players.LocalPlayer.UserId .. " || Ping: " .. library.shared.ping .. " || FPS: " .. library.shared.fps, currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil, textbox = nil}}
+        --
+        library.scriptname = name
+        library.gamename = gamename
         --
         local main_frame = utility:Create("Frame", {Vector2.new(0,0)}, {
             Size = utility:Size(0, size.X, 0, size.Y),
@@ -2387,7 +2393,7 @@ do
             --
             library.shared.initialized = true
             --
-            local watermark, watermarklabel = window:Watermark({ text = "$$ nordhook $$ || UID: " .. game.Players.LocalPlayer.UserId .. " || Ping: " .. library.shared.ping .. " || FPS: " .. library.shared.fps })
+            local watermark, watermarklabel = window:Watermark({ text = "nordhook || UID: " .. game.Players.LocalPlayer.UserId .. " || Ping: " .. library.shared.ping .. " || FPS: " .. library.shared.fps })
             window:KeybindsList()
             window:StatusList()
             window.statuslist:Add("Velocity - 0,0,0")
@@ -2547,7 +2553,7 @@ do
             --
             if tick() - Tick > 0.1 then
                 Tick = tick()
-                library.custom.watermark_title.Text = "$$ nordhook $$ / " .. Build .. " / uid " .. UID .. " / " .. tostring(math.floor(library.shared.ping)) .. "ms / " .. tostring(math.floor(library.shared.fps)) .. " fps"
+                library.custom.watermark_title.Text = "nordhook // " .. Build .. " build // uid " .. UID .. " // ping: " .. tostring(math.floor(library.shared.ping)) .. "ms // fps: " .. tostring(math.floor(library.shared.fps)) .. " fps"
                 window.watermark:UpdateSize()
             end
         end)
@@ -7786,27 +7792,27 @@ do -- utility
                 local Found = Find(nordhook.Configs, ConfigName)
                 --
                 if Found then
-                    delfile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"), Config)
+                    delfile(("nordhook/configs/%s/%s"):format(Library.gamename, ConfigName .. ".json"), Config)
                     Remove(nordhook.Configs, Found) 
                     Library:RefreshConfigList()
                 end
                 --
-                delfile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"), Config)
+                delfile(("nordhook/configs/%s/%s"):format(Library.gamename, ConfigName .. ".json"), Config)
                 Library:RefreshConfigList()
             elseif Action == "Save" then
                 local Config = Library:GetConfig()
                 --
                 if Config then
                     if not Find(nordhook.Configs, ConfigName) then
-                        writefile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"), Config)
+                        writefile(("nordhook/configs/%s/%s"):format(Library.gamename, ConfigName .. ".json"), Config)
                         table.insert(nordhook.Configs, ConfigName)
                         Library:RefreshConfigList()
                     end
                     --
-                    writefile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"), Config)
+                    writefile(("nordhook/configs/%s/%s"):format(Library.gamename, ConfigName .. ".json"), Config)
                 end
             elseif Action == "Load" then
-                local Config = readfile(("nordhook/configs/%s"):format(ConfigName .. ".nordhook"))
+                local Config = readfile(("nordhook/configs/%s/%s"):format(Library.gamename, ConfigName .. ".nordhook"))
                 local Table = Split(Config, "\n")
                 local Table2 = {}
                 --
