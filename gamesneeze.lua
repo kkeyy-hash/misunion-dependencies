@@ -972,6 +972,8 @@ do
         library.scriptname = name
         library.gamename = gamename
         --
+        makefolder("nordhook/configs/" .. library.gamename)
+        --
         local main_frame = utility:Create("Frame", {Vector2.new(0,0)}, {
             Size = utility:Size(0, size.X, 0, size.Y),
             Position = utility:Position(0.5, -(size.X/2) ,0.5, -(size.Y/2)),
