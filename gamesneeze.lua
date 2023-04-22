@@ -1101,7 +1101,7 @@ do
                 HealthBarFade = 0,
                 Fading = false,
                 State = false,
-                Visible = false,
+                Visible = true,
                 Drawings = {},
                 Components = {
                     Box = {
@@ -1301,20 +1301,10 @@ do
                 window.VisualPreview.Fading = false
             end
             --
-            function window.VisualPreview:SetComponentProperty(Component, Property, State, Index, In)
+            function window.VisualPreview:SetComponentProperty(Component, Property, State, Index)
                 for Index2, Value in pairs(window.VisualPreview.Components[Component]) do
-                    
-                    if Index and Component == "Chams" then
-                        window.VisualPreview.Components[Component][Index][In][Property] = State
-                        --
-                        if Property == "Transparency" then
-                            utility:UpdateTransparency(Value[Index], State)
-                            if window.VisualPreview.Drawings[Value[Index]] then
-                                window.VisualPreview.Drawings[Value[Index]] = State
-                            end
-                        end
-                    elseif Index then
-                        window.VisualPreview.Components[Component][Index][Property] = State
+                    if Index then
+                        Value[Index][Property] = State
                         --
                         if Property == "Transparency" then
                             utility:UpdateTransparency(Value[Index], State)
@@ -1376,7 +1366,7 @@ do
                 local preview_box = utility:Create("Frame", {Vector2.new(0, 0), preview_boxoutline}, {
                     Size = utility:Size(1, 0, 1, 0, preview_boxoutline),
                     Position = utility:Position(0, 0, 0, 0, preview_boxoutline),
-                    Color = Color3.fromRGB(112, 162, 255),
+                    Color = Color3.fromRGB(255, 255, 255),
                     Filled = false,
                     Thickness = 0.6
                 }, window.VisualPreview.Drawings)
@@ -1391,7 +1381,7 @@ do
                 local preview_heatlhbar = utility:Create("Frame", {Vector2.new(1, 1), preview_heatlhbaroutline}, {
                     Size = utility:Size(1, -2, 1, -2, preview_heatlhbaroutline),
                     Position = utility:Position(0, 1, 0, 1, preview_heatlhbaroutline),
-                    Color = Color3.fromRGB(0, 255, 0),
+                    Color = Color3.fromRGB(255, 0, 0),
                     Filled = true
                 }, window.VisualPreview.Drawings);healthbar = preview_heatlhbar
                 --
@@ -1435,7 +1425,7 @@ do
                 do -- Chams
                     for Index = 1, 2 do
                         local transparency = Index == 1 and 0.75 or 0.5
-                        local color = Index == 1 and Color3.fromRGB(112, 162, 255) or Color3.fromRGB(255, 255, 255)
+                        local color = Index == 1 and Color3.fromRGB(93, 62, 152) or Color3.fromRGB(255, 255, 255)
                         --
                         local extrasize = Index == 1 and 4 or 0
                         local extraoffset = Index == 1 and -2 or 0
@@ -1489,8 +1479,6 @@ do
                         window.VisualPreview.Components.Chams["LeftLeg"][Index] = preview_character_leftleg
                         window.VisualPreview.Components.Chams["RightLeg"][Index] = preview_character_rightleg
                     end
-
-                    library.VisualPreview = window.VisualPreview
                 end
                 --
                 do -- Skeleton
@@ -1572,11 +1560,21 @@ do
                     Position = utility:Position(0, 1, 0, 1, preview_boxoutline),
                     Color = Color3.fromRGB(255, 255, 255),
                     Filled = true,
-                    Transparency = 0
+                    Transparency = 0.9
+                }, window.VisualPreview.Drawings)
+                --
+                local preview_flags = utility:Create("TextLabel", {Vector2.new(preview_box.Size.X -56, 5), preview_box}, {
+                    Text = "Flags ->", --Display\nMoving\nJumping\nDesynced"
+                    Size = theme.textsize,
+                    Font = theme.font,
+                    Color = Color3.fromRGB(255, 255, 255),
+                    OutlineColor = theme.textborder,
+                    Center = false,
+                    Position = utility:Position(1, -56, 0, 5, preview_box)
                 }, window.VisualPreview.Drawings)
                 --
                 local preview_healthbarvalue = utility:Create("TextLabel", {Vector2.new(0, 5), preview_heatlhbar}, {
-                    Text = "<- Health", --Display\nMoving\nJumping\nDesynced"
+                    Text = "<- Number", --Display\nMoving\nJumping\nDesynced"
                     Size = theme.textsize,
                     Font = theme.font,
                     Color = Color3.fromRGB(0, 255, 0),
@@ -1588,6 +1586,7 @@ do
                 window.VisualPreview.Components.Title["Text"] = preview_title
                 window.VisualPreview.Components.Distance["Text"] = preview_distance
                 window.VisualPreview.Components.Tool["Text"] = preview_tool
+                window.VisualPreview.Components.Flags["Text"] = preview_flags
                 window.VisualPreview.Components.Box["Outline"] = preview_boxoutline
                 window.VisualPreview.Components.Box["Box"] = preview_box
                 window.VisualPreview.Components.Box["Fill"] = preview_boxfill
@@ -7459,6 +7458,7 @@ local nordhook = {
     Configs = {}
 }
 
+local Flags = library.pointers
 function utility:UpdatePreview(Pass)
     if (nordhook.Locals.Window and nordhook.Locals.Window.isVisible and nordhook.Locals.SelectedPage == "visuals") or Pass then
         if nordhook.Locals.SelectedPage and nordhook.Locals.SelectedPlayersSection then
